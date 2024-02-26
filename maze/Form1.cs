@@ -33,9 +33,8 @@ namespace maze
                         newPanel.BackColor = Color.Transparent;
                         newPanel.BorderStyle = BorderStyle.FixedSingle;
                     }
-
-                    Controls.Add(newPanel);
                     cellCntr[i, j] = newPanel;
+                    Controls.Add(cellCntr[i, j]);
 
 
                 }
@@ -46,14 +45,12 @@ namespace maze
                 {
                     var pictureBox = new PictureBox();
                     {
-                        // pictureBox.Location = new Point(cellCntr[i, j].Location.X, cellCntr[i, j].Location.Y);
-                        pictureBox.Location = new Point(600,600);
-                        pictureBox.Size = new Size(100, 20);
+                        pictureBox.Location = new Point(cellCntr[i, j].Location.X, cellCntr[i, j].Location.Y);
+                        pictureBox.Size = new Size(100, 5);
                         pictureBox.BackColor = Color.Black;
                     }
-                    Controls.Add(pictureBox);
                     wallN[i, j] = pictureBox;
-                    cellCntr[i, j].Controls.Add(wallN);
+                    cellCntr[i, j].Controls.Add(wallN[i,j]);
 
 
                 }
