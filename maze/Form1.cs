@@ -31,7 +31,7 @@ namespace maze
                         newPanel.Location = new Point(100 * j, 100 * i);
                         newPanel.Size = new Size(100, 100);
                         newPanel.BackColor = Color.Transparent;
-                        newPanel.BorderStyle = BorderStyle.FixedSingle;
+                     
                     }
                     cellCntr[i, j] = newPanel;
                     Controls.Add(cellCntr[i, j]);
@@ -39,18 +39,70 @@ namespace maze
 
                 }
             }
+            //draw north
             for (int i = 0; i < gridSizeY; i++)
             {
                 for (int j = 0; j < gridSizeX; j++)
                 {
                     var pictureBox = new PictureBox();
                     {
-                        pictureBox.Location = new Point(cellCntr[i, j].Location.X, cellCntr[i, j].Location.Y);
-                        pictureBox.Size = new Size(100, 5);
+                        pictureBox.Location = new Point(0,0);
+                        pictureBox.Size = new Size(100, 2);
                         pictureBox.BackColor = Color.Black;
                     }
                     wallN[i, j] = pictureBox;
                     cellCntr[i, j].Controls.Add(wallN[i,j]);
+
+
+                }
+            }
+            //draw east
+            for (int i = 0; i < gridSizeY; i++)
+            {
+                for (int j = 0; j < gridSizeX; j++)
+                {
+                    var pictureBox = new PictureBox();
+                    {
+                        pictureBox.Location = new Point(98, 0);
+                        pictureBox.Size = new Size(2, 100);
+                        pictureBox.BackColor = Color.Black;
+                    }
+                    wallE[i, j] = pictureBox;
+                    cellCntr[i, j].Controls.Add(wallE[i, j]);
+
+
+                }
+            }
+            //draw south
+            for (int i = 0; i < gridSizeY; i++)
+            {
+                for (int j = 0; j < gridSizeX; j++)
+                {
+                    var pictureBox = new PictureBox();
+                    {
+                        pictureBox.Location = new Point(0, 98);
+                        pictureBox.Size = new Size(100, 2);
+                        pictureBox.BackColor = Color.Black;
+                    }
+                    wallS[i, j] = pictureBox;
+                    cellCntr[i, j].Controls.Add(wallS[i, j]);
+
+
+                }
+            }
+            //draw west
+            for (int i = 0; i < gridSizeY; i++)
+            {
+                for (int j = 0; j < gridSizeX; j++)
+                {
+                    var pictureBox = new PictureBox();
+                    {
+                        pictureBox.Location = new Point(0, 0);
+                        pictureBox.Size = new Size(2, 100);
+                        pictureBox.BackColor = Color.Black;
+                    }
+                    wallW[i, j] = pictureBox;
+                    cellCntr[i, j].Controls.Add(wallW[i, j]);
 
 
                 }
