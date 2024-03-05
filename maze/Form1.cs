@@ -10,21 +10,37 @@ namespace maze
         {
             InitializeComponent();
         }
+        public static int gridSize = 5;
+        public class cell
+        {
+            public Point pos = new Point();
+
+            bool visited = false; //if the square has been selected
+
+            bool nWall = true; //walls, true = wall exists
+            bool eWall = true;
+            bool sWall = true;
+            bool wWall = true;
+        }
+
         private void makeCells()
         {
-            int gridSizeX = 5;
-            int gridSizeY = 5;
 
-            Panel[,] cellCntr = new Panel[gridSizeX, gridSizeY];
 
-            PictureBox[,] wallN = new PictureBox[gridSizeX, gridSizeY]; //top wall
-            PictureBox[,] wallE = new PictureBox[gridSizeX, gridSizeY]; //right wall
-            PictureBox[,] wallS = new PictureBox[gridSizeX, gridSizeY]; //bottom wall
-            PictureBox[,] wallW = new PictureBox[gridSizeX, gridSizeY]; //left wall
+            Panel[,] cellCntr = new Panel[gridSize, gridSize];
 
-            for (int i = 0; i < gridSizeY; i++)
+            PictureBox[,] wallN = new PictureBox[gridSize, gridSize]; //top wall
+            PictureBox[,] wallE = new PictureBox[gridSize, gridSize]; //right wall
+            PictureBox[,] wallS = new PictureBox[gridSize, gridSize]; //bottom wall
+            PictureBox[,] wallW = new PictureBox[gridSize, gridSize]; //left wall
+
+            cell[] newCell = new cell[gridSize ^ 2]; //cell class
+
+            int index = 0; //for adding stuff to newCell
+
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < gridSizeX; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
                     var newPanel = new Panel();
                     {
@@ -36,13 +52,15 @@ namespace maze
                     cellCntr[i, j] = newPanel;
                     Controls.Add(cellCntr[i, j]);
 
-
+ 
+                    newCell[index].pos = new Point(i, j);
+                    index++;
                 }
             }
             //draw north
-            for (int i = 0; i < gridSizeY; i++)
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < gridSizeX; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
                     var pictureBox = new PictureBox();
                     {
@@ -57,9 +75,9 @@ namespace maze
                 }
             }
             //draw east
-            for (int i = 0; i < gridSizeY; i++)
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < gridSizeX; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
                     var pictureBox = new PictureBox();
                     {
@@ -74,9 +92,9 @@ namespace maze
                 }
             }
             //draw south
-            for (int i = 0; i < gridSizeY; i++)
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < gridSizeX; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
                     var pictureBox = new PictureBox();
                     {
@@ -91,9 +109,9 @@ namespace maze
                 }
             }
             //draw west
-            for (int i = 0; i < gridSizeY; i++)
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < gridSizeX; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
                     var pictureBox = new PictureBox();
                     {
@@ -108,6 +126,8 @@ namespace maze
                 }
             }
         }
+
+
         private void drawMaze()
         {
 
