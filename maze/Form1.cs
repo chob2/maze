@@ -15,11 +15,13 @@ namespace maze
         {
             public bool colony = false; //if the square has been selected
             public bool frontier = false;
+            public int tag = -1;
             bool nWall = true; //walls, true = wall exists
             bool eWall = true;
             bool sWall = true;
             bool wWall = true;
         }
+        
 
 
         private void makeCells()
@@ -123,20 +125,15 @@ namespace maze
         private void drawMaze()
         {
             cell[,] cells = new cell[gridSize, gridSize]; //cell class
+            
 
             Random rand = new Random();
 
-            int x = rand.Next(0, gridSize);
-            int y = rand.Next(0, gridSize);
 
-            cells[x, y].colony = true;
 
-            int[] neighbourRowOffsets = { -1, 0, 1, 0 };
-            int[] neighbourColOffsets = { 0, 1, 0, -1 };
-            for(int direction=0; direction<4; direction++)
-            {
-                int n
-            }
+
+
+
 
 
             for (int i = 0; i < (gridSize); i++) //adding cells class to grid
@@ -147,10 +144,40 @@ namespace maze
                     cells[i, j] = newCell;
                 }
             }
+           // cells[x, y].colony = true;
+            int tag = 0;
+
+            cell[,] colCells = new cell[gridSize, gridSize];
+            cell newColCell = new cell(); //picking stating cell
+
+            int x = rand.Next(0, gridSize);
+            int y = rand.Next(0, gridSize);
+
+            colCells[x, y] = newColCell;
+            colCells[x, y].tag = tag;
+            tag++;
 
             for (int i = 0; i < gridSize * gridSize; i++)
             {
 
+
+                x = rand.Next(0, gridSize);
+                y = rand.Next(0, gridSize);
+
+                if (colCells[x,y].tag == -1)
+                {
+                    colCells[x, y] = newColCell;
+                    colCells[x, y].tag = tag;
+                    tag++;
+                }
+
+
+                int[] neighbourRowOffsets = { -1, 0, 1, 0 };
+                int[] neighbourColOffsets = { 0, 1, 0, -1 };
+                for (int direction = 0; direction < 4; direction++)
+                {
+                   
+                }
             }
 
         }
