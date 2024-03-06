@@ -11,49 +11,42 @@ namespace maze
             InitializeComponent();
         }
         public static int gridSize = 5;
-        public class cell
+        class cell
         {
-
-            bool visited = false; //if the square has been selected
-
+            public bool colony = false; //if the square has been selected
+            public bool frontier = false;
             bool nWall = true; //walls, true = wall exists
             bool eWall = true;
             bool sWall = true;
             bool wWall = true;
         }
 
+
         private void makeCells()
         {
 
-
-            Panel[,] cellCntr = new Panel[gridSize, gridSize];
+            Panel[,] cellCntr = new Panel[gridSize, gridSize]; //panel
 
             PictureBox[,] wallN = new PictureBox[gridSize, gridSize]; //top wall
             PictureBox[,] wallE = new PictureBox[gridSize, gridSize]; //right wall
             PictureBox[,] wallS = new PictureBox[gridSize, gridSize]; //bottom wall
             PictureBox[,] wallW = new PictureBox[gridSize, gridSize]; //left wall
 
-            cell[,] newCell = new cell[gridSize,gridSize]; //cell class
-
-            int index = 0; //for adding stuff to newCell
-
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
                 {
-                    var newPanel = new Panel();
+                    var newPanel = new Panel();//making panel
                     {
                         newPanel.Location = new Point(100 * j, 100 * i);
                         newPanel.Size = new Size(100, 100);
                         newPanel.BackColor = Color.Transparent;
-                     
+
                     }
-                    cellCntr[i, j] = newPanel;
-                    Controls.Add(cellCntr[i, j]);
+                    cellCntr[i, j] = newPanel;//adding panel to cellCntr array
+                    Controls.Add(cellCntr[i, j]);//add panel controls
 
 
-                    
-                    index++;
                 }
             }
             //draw north
@@ -63,12 +56,12 @@ namespace maze
                 {
                     var pictureBox = new PictureBox();
                     {
-                        pictureBox.Location = new Point(0,0);
+                        pictureBox.Location = new Point(0, 0);
                         pictureBox.Size = new Size(100, 2);
                         pictureBox.BackColor = Color.Black;
                     }
                     wallN[i, j] = pictureBox;
-                    cellCntr[i, j].Controls.Add(wallN[i,j]);
+                    cellCntr[i, j].Controls.Add(wallN[i, j]);
 
 
                 }
@@ -129,12 +122,47 @@ namespace maze
 
         private void drawMaze()
         {
+            cell[,] cells = new cell[gridSize, gridSize]; //cell class
+
+            Random rand = new Random();
+
+            int x = rand.Next(0, gridSize);
+            int y = rand.Next(0, gridSize);
+
+            cells[x, y].colony = true;
+
+            int[] neighbourRowOffsets = { -1, 0, 1, 0 };
+            int[] neighbourColOffsets = { 0, 1, 0, -1 };
+            for(int direction=0; direction<4; direction++)
+            {
+                int n
+            }
+
+
+            for (int i = 0; i < (gridSize); i++) //adding cells class to grid
+            {
+                for (int j = 0; j < gridSize; j++)
+                {
+                    cell newCell = new cell();
+                    cells[i, j] = newCell;
+                }
+            }
+
+            for (int i = 0; i < gridSize * gridSize; i++)
+            {
+
+            }
 
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             makeCells();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            drawMaze();
         }
     }
 }
