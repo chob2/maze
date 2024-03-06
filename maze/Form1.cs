@@ -13,7 +13,6 @@ namespace maze
         public static int gridSize = 5;
         public class cell
         {
-            public Point pos = new Point();
 
             bool visited = false; //if the square has been selected
 
@@ -34,7 +33,7 @@ namespace maze
             PictureBox[,] wallS = new PictureBox[gridSize, gridSize]; //bottom wall
             PictureBox[,] wallW = new PictureBox[gridSize, gridSize]; //left wall
 
-            cell[] newCell = new cell[gridSize ^ 2]; //cell class
+            cell[,] newCell = new cell[gridSize,gridSize]; //cell class
 
             int index = 0; //for adding stuff to newCell
 
@@ -52,8 +51,8 @@ namespace maze
                     cellCntr[i, j] = newPanel;
                     Controls.Add(cellCntr[i, j]);
 
- 
-                    newCell[index].pos = new Point(i, j);
+
+                    
                     index++;
                 }
             }
