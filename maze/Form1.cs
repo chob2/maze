@@ -124,63 +124,103 @@ namespace maze
 
         private void drawMaze()
         {
+            /* cell[,] cells = new cell[gridSize, gridSize]; //cell class
+
+
+             Random rand = new Random();
+
+
+
+
+
+
+
+
+             for (int i = 0; i < (gridSize); i++) //adding cells class to grid
+             {
+                 for (int j = 0; j < gridSize; j++)
+                 {
+                     cell newCell = new cell();
+                     cells[i, j] = newCell;
+                 }
+             }
+
+            // cells[x, y].colony = true;
+             int tag = 0; //assigns colony cell to an index
+
+             cell[,] poolCells = new cell[gridSize, gridSize];
+             cell newPoolCell = new cell();
+
+             int x = rand.Next(0, gridSize); //x = rows
+             int y = rand.Next(0, gridSize);//y = columns
+
+             cells[x, y].tag = tag; //first cell index at 0
+             tag++;
+
+             int[] neighbourRowOffsets = { -1, 0, 1, 0 };
+             int[] neighbourColOffsets = { 0, 1, 0, -1 };
+             for (int direction = 0; direction < 4; direction++)
+             {
+                 int newRow = x + neighbourRowOffsets[direction];
+                 int newCol = y + neighbourColOffsets[direction];
+
+                 if(newRow >=0 && newRow < gridSize && newCol >= 0 && newCol < gridSize)
+                 {
+                     poolCells[newRow, newCol] = newPoolCell;
+                 }
+             }
+
+             for (int i = 0; i < gridSize * gridSize; i++)
+             {   
+
+
+
+
+
+
+                 for (int direction = 0; direction < 4; direction++)
+                 {
+
+                 }
+             }*/
+
+
+
             cell[,] cells = new cell[gridSize, gridSize]; //cell class
-            
 
-            Random rand = new Random();
-
-
-
-
-
-
-
-
-            for (int i = 0; i < (gridSize); i++) //adding cells class to grid
-            {
+            for (int i = 0; i < (gridSize); i++) //adding grids to a class so i can interact with them
+            {                                       //i = row, j = column
                 for (int j = 0; j < gridSize; j++)
                 {
                     cell newCell = new cell();
                     cells[i, j] = newCell;
                 }
             }
-           // cells[x, y].colony = true;
-            int tag = 0;
 
-            cell[,] colCells = new cell[gridSize, gridSize];
-            cell newColCell = new cell(); //picking stating cell
-
+            Random rand = new Random();
             int x = rand.Next(0, gridSize);
-            int y = rand.Next(0, gridSize);
+            int y = rand.Next(0, (gridSize);
 
-            colCells[x, y] = newColCell;
-            colCells[x, y].tag = tag;
+            int tag = 0; //tag allows me to index each chosen cell
+            cells[x, y].tag = tag; //if the tag != -1, it is a chosen cell
             tag++;
 
-            for (int i = 0; i < gridSize * gridSize; i++)
-            {
+            int[,,] potential = new
 
 
-                x = rand.Next(0, gridSize);
-                y = rand.Next(0, gridSize);
-
-                if (colCells[x,y].tag == -1)
-                {
-                    colCells[x, y] = newColCell;
-                    colCells[x, y].tag = tag;
-                    tag++;
-                }
 
 
-                int[] neighbourRowOffsets = { -1, 0, 1, 0 };
-                int[] neighbourColOffsets = { 0, 1, 0, -1 };
-                for (int direction = 0; direction < 4; direction++)
-                {
-                   
-                }
-            }
+
+
+
+
+
+
+
 
         }
+
+
 
         private void button1_Click(object sender, EventArgs e)
         {
