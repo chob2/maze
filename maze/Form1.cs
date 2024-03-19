@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace maze
 {
@@ -11,6 +12,7 @@ namespace maze
             InitializeComponent();
         }
         public static int gridSize = 5;
+        public static int gridCount = gridSize * gridSize;
         class cell
         {
             public bool colony = false; //if the square has been selected
@@ -197,22 +199,66 @@ namespace maze
                 }
             }
 
+
+
+
             Random rand = new Random();
-            int x = rand.Next(0, gridSize);
-            int y = rand.Next(0, (gridSize);
 
-            int tag = 0; //tag allows me to index each chosen cell
-            cells[x, y].tag = tag; //if the tag != -1, it is a chosen cell
-            tag++;
+            int x = rand.Next(0, gridSize);//randomly choosing a cell 
+            int y = rand.Next(0, gridSize);
 
-            int[,,] potential = new
+            List<Point> chosenCells = new List<Point>();//adding starting cell to chosen cells list
+            Point chosenPoint = new Point(x, y);
+            chosenCells.Add(chosenPoint);
+
+            List<Point> potentialNext = new List<Point>();//this will be the list of cells adjacent to chosen cells that may be chosen next iteration
+
+            int[] neighbourRowOffsets = { -1, 0, 1, 0 }; 
+            int[] neighbourColOffsets = { 0, 1, 0, -1 };
+
+            for (int direction = 0; direction < 4; direction++) //this checks for the cells adjacent to the chosen cell
+            {                                                   //allows me to add to potentialNext without creating runtime error
+                int newRow = x + neighbourRowOffsets[direction];
+                int newCol = y + neighbourColOffsets[direction];
+                Point nextPoint = new Point(newRow,newCol);
+
+                if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize)
+                {
+                    potentialNext.Add(nextPoint); //adds cell to list if it is inside the grid
+                }
+            }
+
+            while(chosenCells.Count < gridCount)
+            {
+                int i = rand.Next(0, potentialNext.Count);
+                x = potentialNext[i].X; //indexing a random potential cell's coordinates
+                y = potentialNext[i].Y;
+
+                int index = 0;
+                Point[] neighbours = new Point[4];//potential neighbouring chosen points
+
+                for (int direction = 0; direction < 4; direction++) //checking neighbouring cells for a chosen cell
+                {                                                   
+                    int newRow = x + neighbourRowOffsets[direction];
+                    int newCol = y + neighbourColOffsets[direction];
+
+                    Point nextPoint = new Point(newRow, newCol);//selected point from potentialNext
+
+                    if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize)
+                    {
+                        if (chosenCells.Contains(nextPoint))
+                        {
+                            neighbours[index] = nextPoint;
+                            index++;
+                        }
+                    }
+                }
+                
 
 
 
 
-
-
-
+            }
 
 
 
