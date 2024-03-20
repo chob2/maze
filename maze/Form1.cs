@@ -35,7 +35,7 @@ namespace maze
             PictureBox[,] wallE = new PictureBox[gridSize, gridSize]; //right wall
             PictureBox[,] wallS = new PictureBox[gridSize, gridSize]; //bottom wall
             PictureBox[,] wallW = new PictureBox[gridSize, gridSize]; //left wall
-
+             //i = row and j = column
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
@@ -190,12 +190,12 @@ namespace maze
 
             cell[,] cells = new cell[gridSize, gridSize]; //cell class
 
-            for (int i = 0; i < (gridSize); i++) //adding grids to a class so i can interact with them
+            for (int I = 0; I < (gridSize); I++) //adding grids to a class so i can interact with them
             {                                       //i = row, j = column
-                for (int j = 0; j < gridSize; j++)
+                for (int J = 0; J < gridSize; J++)
                 {
                     cell newCell = new cell();
-                    cells[i, j] = newCell;
+                    cells[I, J] = newCell;
                 }
             }
 
@@ -204,11 +204,11 @@ namespace maze
 
             Random rand = new Random();
 
-            int x = rand.Next(0, gridSize);//randomly choosing a cell 
-            int y = rand.Next(0, gridSize);
+            int i = rand.Next(0, gridSize);//randomly choosing a cell 
+            int j = rand.Next(0, gridSize); //i = rows and j = columns
 
             List<Point> chosenCells = new List<Point>();//adding starting cell to chosen cells list
-            Point chosenPoint = new Point(x, y);
+            Point chosenPoint = new Point(i, j);
             chosenCells.Add(chosenPoint);
 
             List<Point> potentialNext = new List<Point>();//this will be the list of cells adjacent to chosen cells that may be chosen next iteration
@@ -218,8 +218,8 @@ namespace maze
 
             for (int direction = 0; direction < 4; direction++) //this checks for the cells adjacent to the chosen cell
             {                                                   //allows me to add to potentialNext without creating runtime error
-                int newRow = x + neighbourRowOffsets[direction];
-                int newCol = y + neighbourColOffsets[direction];
+                int newRow = i + neighbourRowOffsets[direction];
+                int newCol = j + neighbourColOffsets[direction];
                 Point nextPoint = new Point(newRow,newCol);
 
                 if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize)
@@ -227,20 +227,20 @@ namespace maze
                     potentialNext.Add(nextPoint); //adds cell to list if it is inside the grid
                 }
             }
-
-            while(chosenCells.Count < gridCount)
+            int count = 0;
+            while(count < gridCount)
             {
-                int i = rand.Next(0, potentialNext.Count);
-                x = potentialNext[i].X; //indexing a random potential cell's coordinates
-                y = potentialNext[i].Y;
+                int r = rand.Next(0, potentialNext.Count);
+                i = potentialNext[r].X; //indexing a random potential cell's coordinates
+                j = potentialNext[r].Y;
 
                 int index = 0;
                 Point[] neighbours = new Point[4];//potential neighbouring chosen points
 
                 for (int direction = 0; direction < 4; direction++) //checking neighbouring cells for a chosen cell
                 {                                                   
-                    int newRow = x + neighbourRowOffsets[direction];
-                    int newCol = y + neighbourColOffsets[direction];
+                    int newRow = i + neighbourRowOffsets[direction];
+                    int newCol = j + neighbourColOffsets[direction];
 
                     Point nextPoint = new Point(newRow, newCol);//selected point from potentialNext
 
@@ -253,11 +253,12 @@ namespace maze
                         }
                     }
                 }
-                
+                chosenCells.Add(potentialNext[r]);//these two lines are what causes runtime error in line 234
+                potentialNext.RemoveAt(r);
 
 
 
-
+                count++;
             }
 
 
