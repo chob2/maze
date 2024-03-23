@@ -153,7 +153,7 @@ namespace maze
                     progress++;
                 }
             }
-
+            
 
 
         }
@@ -263,8 +263,7 @@ namespace maze
                     wallN[neighbours[targ].Y, neighbours[targ].X].Dispose();
                 }
 
-
-
+                
                 //find neighbours of potentialNext[r] for next iteration
                 //if neighbours arent already chosen or in potentialNext, add to potentialNext
                 for (int direction = 0; direction < 4; direction++) //this checks for the cells adjacent to the chosen cell
@@ -289,6 +288,7 @@ namespace maze
                 count++;
                 progress++;
 
+                this.Update();
             }
             wallN[0, 0].Dispose();
             wallS[gridSize - 1, gridSize - 1].Dispose();
