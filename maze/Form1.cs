@@ -23,18 +23,18 @@ namespace maze
             bool sWall = true;
             bool wWall = true;
         }
-        
 
+        public PictureBox[,] wallN = new PictureBox[gridSize, gridSize]; //top wall
+        public PictureBox[,] wallE = new PictureBox[gridSize, gridSize]; //right wall
+        public PictureBox[,] wallS = new PictureBox[gridSize, gridSize]; //bottom wall
+        public PictureBox[,] wallW = new PictureBox[gridSize, gridSize]; //left wall
 
         private void makeCells()
         {
 
             Panel[,] cellCntr = new Panel[gridSize, gridSize]; //panel
 
-            PictureBox[,] wallN = new PictureBox[gridSize, gridSize]; //top wall
-            PictureBox[,] wallE = new PictureBox[gridSize, gridSize]; //right wall
-            PictureBox[,] wallS = new PictureBox[gridSize, gridSize]; //bottom wall
-            PictureBox[,] wallW = new PictureBox[gridSize, gridSize]; //left wall
+
              //i = row and j = column
             for (int i = 0; i < gridSize; i++)
             {
@@ -228,7 +228,7 @@ namespace maze
                 }
             }
             int count = 0;
-            while(count < gridCount)
+            while (count < gridCount - 1)
             {
                 int r = rand.Next(0, potentialNext.Count);
                 i = potentialNext[r].X; //indexing a random potential cell's coordinates
@@ -236,9 +236,10 @@ namespace maze
 
                 int index = 0;
                 Point[] neighbours = new Point[4];//potential neighbouring chosen points
-
+                int[] dirI = new int[4];
+                int[] dirJ = new int[4];
                 for (int direction = 0; direction < 4; direction++) //checking neighbouring cells for a chosen cell
-                {                                                   
+                {
                     int newRow = i + neighbourRowOffsets[direction];
                     int newCol = j + neighbourColOffsets[direction];
 
@@ -249,16 +250,64 @@ namespace maze
                         if (chosenCells.Contains(nextPoint))
                         {
                             neighbours[index] = nextPoint;
+                            dirI[index] = neighbourRowOffsets[direction];
+                            dirJ[index] = neighbourColOffsets[direction];
                             index++;
                         }
                     }
                 }
+                
+                //find neighbours of potentialNext[r]
+                //if neighbours arent chosen or in potentialNext, add to potentialNext
+                for (int direction = 0; direction < 4; direction++) //this checks for the cells adjacent to the chosen cell
+                {                                                   //allows me to add to potentialNext without creating runtime error
+                    int newRow = i + neighbourRowOffsets[direction];
+                    int newCol = j + neighbourColOffsets[direction];
+                    Point nextPoint = new Point(newRow, newCol);
+
+                    if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize)
+                    {
+                        if (!chosenCells.Contains(nextPoint) && !potentialNext.Contains(nextPoint))
+                        {
+                            potentialNext.Add(nextPoint); //adds cell to list if it is inside the grid and not previously interacted with
+
+                        }
+                    }
+                }
+                int targ = rand.Next(0, index);
+                //if target cell is above, remove potentialNext[targ] north wall and remove target cell south wall
+                if (dirI[targ] == 1 && dirJ[targ] == 0)
+                {
+                    wallN[i, j].Visible = false;
+                    wallS[i + dirI[targ], j + dirJ[targ]].Visible = false;
+                }
+                //if target cell is below, remove potentialNext[targ] south wall and remove target cell north wall
+                else if (dirI[targ] == 1 && dirJ[targ] == 0)
+                {
+                    wallS[i, j].Visible = false;
+                    wallN[i + dirI[targ], j + dirJ[targ]].Visible = false;
+                }
+                //if target cell is to the right, remove potentialNext[targ] east wall and remove target cell west wall
+                else if (dirI[targ] == 1 && dirJ[targ] == 0)
+                {
+                    wallE[i, j].Visible = false;
+                    wallW[i + dirI[targ], j + dirJ[targ]].Visible = false;
+                }
+                //if target cell is to the left, remove potentialNext[targ] west wall and remove target cell east wall
+                else if (dirI[targ] == 1 && dirJ[targ] == 0)
+                {
+                    wallW[i, j].Visible = false;
+                    wallE[i + dirI[targ], j + dirJ[targ]].Visible = false;
+                }
+
                 chosenCells.Add(potentialNext[r]);//these two lines are what causes runtime error in line 234
-                potentialNext.RemoveAt(r);
+                potentialNext.RemoveAt(r); //figured it out, im not adding to potentialNext each iteration, explains why it never gets past 4th iteration
 
 
 
                 count++;
+
+                //fixed indexing error, maze generation is still fucked, must do a desk check
             }
 
 
