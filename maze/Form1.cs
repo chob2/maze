@@ -11,152 +11,67 @@ namespace maze
         public Form1()
         {
             InitializeComponent();
+
         }
 
+
+
         private static int gridSize; //number of cells in each row and column
+        private int progress;
 
-        public PictureBox[,] wallN; //top wall
-        public PictureBox[,] wallE; //right wall
-        public PictureBox[,] wallS; //bottom wall
-        public PictureBox[,] wallW; //left wall
-        public Panel[,] cellCntr = new Panel[gridSize, gridSize]; //cell
 
-        private void makeCells() //surprisingly, this segment is the most performance intensive
-        { //makes each cell and walls
+
+
+        private float size;
+
+        private void newMakeCells()
+        {
+
             try
             {
                 gridSize = Convert.ToInt32(gridSizeInput.Text);
                 if (gridSize < 1)
                 {
-                    gridSize = 15;
-                    MessageBox.Show("Invalid input, grid size set to default (15).");
+                    gridSize = 50;
+                    MessageBox.Show("Invalid input (" + gridSizeInput.Text + "). Grid size set to default(50).");
                 }
-                if (gridSize > 44)
+                if (gridSize > 300)
                 {
-                    gridSize = 44;
-                    MessageBox.Show("Input above max. Grid size set to max (44).");
+                    gridSize = 300;
+                    MessageBox.Show("Input too large (" + gridSizeInput.Text + "). " + "Grid size set to max (300).");
                 }
-
             }
             catch
             {
-                gridSize = 15;
-                MessageBox.Show("Invalid input, grid size set to default (15).");
+                gridSize = 50;
+                MessageBox.Show("Invalid input (" + gridSizeInput.Text + ") . Grid size set to default (50).");
             }
+            size = (mazeContainer.Width / gridSize);
 
-            progressBar1.Maximum = 6 * gridSize * gridSize;
-            int progress = 0;
+            mazeContainer.Height = mazeContainer.Height + 1;
+            mazeContainer.Width = mazeContainer.Width + 1;
 
-            wallN = new PictureBox[gridSize, gridSize]; //top wall
-            wallE = new PictureBox[gridSize, gridSize]; //right wall
-            wallS = new PictureBox[gridSize, gridSize]; //bottom wall
-            wallW = new PictureBox[gridSize, gridSize]; //left wall
+            progressBar1.Maximum = gridSize * gridSize;
+            progress = 0;
 
-            cellCntr = new Panel[gridSize, gridSize]; //panel
+            Pen myPen = new Pen(Color.Black, 1);
+            Graphics g = mazeContainer.CreateGraphics();
 
-            int size = mazeContainer.Width / gridSize;
+            g.DrawLine(myPen, 0, 0, size * gridSize, 0); //north wall
+            g.DrawLine(myPen, 0, 0, 0, size * gridSize);
 
-
-            //i = row and j = column
-            //making panel grid
             for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < gridSize; j++)
-                {
-                    var newPanel = new Panel();
-                    {
-                        newPanel.Location = new Point(size * j, size * i);
-                        newPanel.Size = new Size(size, size);
-                        newPanel.BackColor = Color.Transparent;
-
-                    }
-                    cellCntr[i, j] = newPanel;//adding panel to cellCntr array
-                    Controls.Add(cellCntr[i, j]);//add panel controls
-                    mazeContainer.Controls.Add(newPanel);//adds cell to container to be displayed at a constant size
-
-                    progressBar1.Value = progress;
-                    progress++;
-                }
+                g.DrawLine(myPen, 0, i * size + size, gridSize * size, i * size + size);
             }
-
-            //making walls and adding them to panel grid
-            //draw north
             for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < gridSize; j++)
-                {
-                    var pictureBox = new PictureBox();
-                    {
-                        pictureBox.Location = new Point(0, 0);
-                        pictureBox.Size = new Size(size, 2);
-                        pictureBox.BackColor = Color.Black;
-                    }
-                    wallN[i, j] = pictureBox;
-                    cellCntr[i, j].Controls.Add(wallN[i, j]);
+                g.DrawLine(myPen, i * size + size, 0, i * size + size, gridSize * size);
 
-                    progressBar1.Value = progress;
-                    progress++;
-
-                }
             }
-            //draw east
-            for (int i = 0; i < gridSize; i++)
-            {
-                for (int j = 0; j < gridSize; j++)
-                {
-                    var pictureBox = new PictureBox();
-                    {
-                        pictureBox.Location = new Point(size - 2, 0);
-                        pictureBox.Size = new Size(2, size);
-                        pictureBox.BackColor = Color.Black;
-                    }
-                    wallE[i, j] = pictureBox;
-                    cellCntr[i, j].Controls.Add(wallE[i, j]);
-
-                    progressBar1.Value = progress;
-                    progress++;
-                }
-            }
-            //draw south
-            for (int i = 0; i < gridSize; i++)
-            {
-                for (int j = 0; j < gridSize; j++)
-                {
-                    var pictureBox = new PictureBox();
-                    {
-                        pictureBox.Location = new Point(0, size - 2);
-                        pictureBox.Size = new Size(size, 2);
-                        pictureBox.BackColor = Color.Black;
-                    }
-                    wallS[i, j] = pictureBox;
-                    cellCntr[i, j].Controls.Add(wallS[i, j]);
-
-                    progressBar1.Value = progress;
-                    progress++;
-                }
-            }
-            //draw west
-            for (int i = 0; i < gridSize; i++)
-            {
-                for (int j = 0; j < gridSize; j++)
-                {
-                    var pictureBox = new PictureBox();
-                    {
-                        pictureBox.Location = new Point(0, 0);
-                        pictureBox.Size = new Size(2, size);
-                        pictureBox.BackColor = Color.Black;
-                    }
-                    wallW[i, j] = pictureBox;
-                    cellCntr[i, j].Controls.Add(wallW[i, j]);
-
-                    progressBar1.Value = progress;
-                    progress++;
-                }
-            }
-            
-
-
+            myPen.Dispose();
         }
+
 
 
         private void drawMaze() //uses a randomised prim's algorithm to generate the maze
@@ -166,16 +81,16 @@ namespace maze
                 gridSize = Convert.ToInt32(gridSizeInput.Text);
                 if (gridSize < 1)
                 {
-                    gridSize = 15;
+                    gridSize = 50;
                 }
-                if (gridSize > 44)
+                if (gridSize > 300)
                 {
-                    gridSize = 44;
+                    gridSize = 300;
                 }
             }
             catch
             {
-                gridSize = 15;
+                gridSize = 50;
             }
 
             Random rand = new Random();
@@ -206,7 +121,7 @@ namespace maze
             }
 
             int count = 0;
-            int progress = 5 * gridSize * gridSize;
+
             while (count < (gridSize * gridSize - 1))
             {
                 progressBar1.Value = progress;
@@ -228,42 +143,43 @@ namespace maze
                     {
                         if (chosenCells.Contains(nextPoint))
                         {
-                            neighbours[index] = nextPoint; //adds cell to potential choices if it has already been chosen
+                            neighbours[index] = nextPoint; //adds cell to potential targets if it has already been chosen
                             index++;
                         }
                     }
                 }
 
+                Graphics g = mazeContainer.CreateGraphics();
+                Color color = mazeContainer.BackColor;
+                Pen myPen = new Pen(color, 1);
 
-
-                int targ = rand.Next(0, index);//choosing valid cell
+                int targ = rand.Next(0, index);//choosing valid target cell
                 //deleting connecting walls between the chosen cells
+
                 //if neighbours[targ].X > potentialNext[r].X -> target cell is to the right
                 if (neighbours[targ].X > potentialNext[r].X)
                 {
-                    wallE[potentialNext[r].Y, potentialNext[r].X].Dispose();
-                    wallW[neighbours[targ].Y, neighbours[targ].X].Dispose();
+                    g.DrawLine(myPen, potentialNext[r].X * size + size, potentialNext[r].Y * size + 1, potentialNext[r].X * size + size, potentialNext[r].Y * size + size - 1);
                 }
                 //if neighbours[targ].X < potentialNext[r].X -> target cell is to the left
                 else if (neighbours[targ].X < potentialNext[r].X)
                 {
-                    wallW[potentialNext[r].Y, potentialNext[r].X].Dispose();
-                    wallE[neighbours[targ].Y, neighbours[targ].X].Dispose();
+                    g.DrawLine(myPen, potentialNext[r].X * size, potentialNext[r].Y * size + 1, potentialNext[r].X * size, potentialNext[r].Y * size + size - 1);
                 }
                 //if neighbours[targ].Y < potentialNext[r].Y -> target cell is above
                 else if (neighbours[targ].Y < potentialNext[r].Y)
                 {
-                    wallN[potentialNext[r].Y, potentialNext[r].X].Dispose();
-                    wallS[neighbours[targ].Y, neighbours[targ].X].Dispose();
+                    //wallN[potentialNext[r].Y, potentialNext[r].X].Dispose();
+                    //g.DrawLine(myPen, size * j, size * i, size * j + size, size * i);
+                    g.DrawLine(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size);
                 }
                 //if neighbours[targ].Y > potentialNext[r].Y -> target cell is below
                 else if (neighbours[targ].Y > potentialNext[r].Y)
                 {
-                    wallS[potentialNext[r].Y, potentialNext[r].X].Dispose();
-                    wallN[neighbours[targ].Y, neighbours[targ].X].Dispose();
+                    g.DrawLine(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size + size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size + size);
                 }
 
-                
+
                 //find neighbours of potentialNext[r] for next iteration
                 //if neighbours arent already chosen or in potentialNext, add to potentialNext
                 for (int direction = 0; direction < 4; direction++) //this checks for the cells adjacent to the chosen cell
@@ -288,30 +204,27 @@ namespace maze
                 count++;
                 progress++;
 
-                this.Update();
-            }
-            wallN[0, 0].Dispose();
-            wallS[gridSize - 1, gridSize - 1].Dispose();
+                this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
+            }        
         }
 
 
         private void generate()
         {
+
             time.Visible = false;
             progressBar1.Visible = true;
 
             var watch = new Stopwatch();
             watch.Start();
+            Graphics g = mazeContainer.CreateGraphics();
+            Color color = mazeContainer.BackColor;
 
-            for (int i = 0; i < gridSize; i++)
-            {
-                for (int j = 0; j < gridSize; j++)
-                {
-                    cellCntr[i, j].Dispose(); //disposing of the maze to clear memory, allows for multiple generations without memory leak
-                }
-            }
 
-            makeCells();
+            g.Clear(color);  //disposing of the maze to clear memory, allows for multiple generations without memory leak
+
+
+            newMakeCells();
             drawMaze();
 
             watch.Stop();

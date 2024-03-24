@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.buttonGenerate = new System.Windows.Forms.Button();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.time = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
@@ -56,7 +55,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.gridSizeInput);
             this.groupBox1.Controls.Add(this.buttonGenerate);
-            this.groupBox1.Location = new System.Drawing.Point(847, 36);
+            this.groupBox1.Location = new System.Drawing.Point(1033, 22);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(185, 84);
             this.groupBox1.TabIndex = 2;
@@ -84,9 +83,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(6, 16);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(92, 13);
+            this.label1.Size = new System.Drawing.Size(162, 13);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Grid Size (max 44)";
+            this.label1.Text = "Grid Size (max displayable = 300)";
             // 
             // gridSizeInput
             // 
@@ -99,15 +98,16 @@
             // mazeContainer
             // 
             this.mazeContainer.Location = new System.Drawing.Point(27, 22);
+            this.mazeContainer.Margin = new System.Windows.Forms.Padding(0);
             this.mazeContainer.Name = "mazeContainer";
-            this.mazeContainer.Size = new System.Drawing.Size(800, 800);
+            this.mazeContainer.Size = new System.Drawing.Size(900, 900);
             this.mazeContainer.TabIndex = 3;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1084, 861);
+            this.ClientSize = new System.Drawing.Size(1234, 1041);
             this.Controls.Add(this.mazeContainer);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
@@ -121,7 +121,6 @@
         #endregion
 
         private System.Windows.Forms.Button buttonGenerate;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox gridSizeInput;
