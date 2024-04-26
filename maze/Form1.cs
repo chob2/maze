@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+
 
 namespace maze
 {
@@ -22,11 +24,12 @@ namespace maze
 
 
 
-        private float size;
+        private int size;
+
+
 
         private void newMakeCells()
         {
-
             try
             {
                 gridSize = Convert.ToInt32(gridSizeInput.Text);
@@ -54,6 +57,9 @@ namespace maze
             progressBar1.Maximum = gridSize * gridSize;
             progress = 0;
 
+
+
+
             Pen myPen = new Pen(Color.Black, 1);
             Graphics g = mazeContainer.CreateGraphics();
 
@@ -70,6 +76,7 @@ namespace maze
 
             }
             myPen.Dispose();
+            g.Dispose();
         }
 
 
@@ -121,7 +128,6 @@ namespace maze
             }
 
             int count = 0;
-
             while (count < (gridSize * gridSize - 1))
             {
                 progressBar1.Value = progress;
@@ -205,7 +211,7 @@ namespace maze
                 progress++;
 
                 this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
-            }        
+            }
         }
 
 
@@ -222,7 +228,7 @@ namespace maze
 
 
             g.Clear(color);  //disposing of the maze to clear memory, allows for multiple generations without memory leak
-
+            g.Dispose();
 
             newMakeCells();
             drawMaze();
@@ -248,6 +254,164 @@ namespace maze
             if (e.KeyCode == Keys.Enter)
             {
                 generate();
+            }
+        }
+
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            solve();
+        }
+
+        public Color getPixelColor(Control control, Point location)//function that checks the pixel color of a given point
+        {
+            Point screenPoint = control.PointToScreen(location);
+            Bitmap bitmap = new Bitmap(1, 1);
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                g.CopyFromScreen(screenPoint.X, screenPoint.Y, 0, 0, new Size(1, 1));
+            }
+            Color pixelColor = bitmap.GetPixel(0, 0);
+            bitmap.Dispose();
+            Console.WriteLine(pixelColor.ToString());
+            return pixelColor;
+        }
+
+        
+
+        private void solve()//maze solver using DFS algorithm
+        {
+            Random rand = new Random();
+
+            int[] neighbourRowOffsets = { 0, size / 2, size, size / 2 };
+            int[] neighbourColOffsets = { size / 2, size, size / 2, 0 };
+
+
+            int[] offsetX = { 0, 1, 0, -1 }; //n, e, s, w
+            int[] offsetY = { -1, 0, 1, 0 };
+
+            List<Point> moves = new List<Point>(); //list of moves, e.g. up one or left one
+            List<Point> visited = new List<Point>(); //visited cells
+            List<Point> intersections = new List<Point>();
+
+
+            Point[] next = new Point[4];
+            int index = 0;
+
+            Point current = new Point(0, 0); //current point, starting at 0,0
+            Color color2 = Color.White;
+
+            for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
+            {
+                int newY = neighbourRowOffsets[direction];
+                int newX = neighbourColOffsets[direction];
+
+                int dirY = offsetY[direction];
+                int dirX = offsetX[direction];
+
+                Point point = new Point(newX, newY);
+                Point nextPoint = new Point(dirX, dirY);
+                
+                Color color1 = getPixelColor(mazeContainer, point);
+             //checks n,e,s,w
+                if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B) //if the inspected pixel is the same as background, there is no wall
+                {
+                    next[index] = nextPoint; //if no wall, add connecting cell to potential next moves
+                    index++;
+                } 
+            }
+            if (index > 1 && !intersections.Contains(current))
+            {
+                intersections.Add(current);
+            }
+
+            int count = 0;
+
+            int targ = rand.Next(0, index);
+            moves.Add(next[targ]);
+            visited.Add(current);
+            current = new Point (moves[count].X, moves[count].Y);
+
+            count++;
+
+            while (current != new Point(gridSize, gridSize))
+            {
+                index = 0;
+                bool path = false; //boolean to store if a cell has a continuing path from it
+
+
+                for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
+                {
+                    int newY = neighbourRowOffsets[direction];
+                    int newX = neighbourColOffsets[direction];
+
+                    int dirY = offsetY[direction];
+                    int dirX = offsetX[direction];
+
+                    Point point = new Point(current.X*size + newX, current.Y*size + newY);
+                    Point nextPoint = new Point(dirX, dirY);
+                    Color color1 = getPixelColor (mazeContainer, point);
+
+                    //checks in the order of w, n, e, s
+                    if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B && !visited.Contains(new Point(current.X + dirX, current.Y + dirY)))
+                    {
+                        next[index] = nextPoint; //if no wall and not already visited, add to next moves
+                        index++;
+                        path = true;
+                    }
+                }
+
+                if (path)
+                {
+                    targ = rand.Next(0, index);
+                    moves.Add(next[targ]);
+                    visited.Add(current);
+                    current = new Point(current.X + moves[count].X, current.Y + moves[count].Y);
+                    count++;
+                    if (index > 1 && !intersections.Contains(current))
+                    {
+                        intersections.Add(current);
+                    }
+                }
+                else
+                {
+                    while (!intersections.Contains(current))
+                    {
+                        current = new Point(current.X - moves[count].X, current.Y - moves[count].Y);
+                        moves.RemoveAt(count);
+                        count--;
+
+
+
+                        if (intersections.Contains(current))
+                        {
+                            for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
+                            {
+                                int newY = neighbourRowOffsets[direction];
+                                int newX = neighbourColOffsets[direction];
+
+                                int dirY = offsetY[direction];
+                                int dirX = offsetX[direction];
+
+                                Point point = new Point(current.X*size + newX, current.Y*size + newY);
+                                Point nextPoint = new Point(dirX, dirY);
+                                Color color1 = getPixelColor(mazeContainer, point);
+
+                                //checks in the order of w, n, e, s
+                                if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B && !visited.Contains(new Point(current.X + dirX, current.Y + dirY)))
+                                {
+                                    next[index] = nextPoint; //if no wall and not already visited, add to next moves
+                                    index++;
+                                }
+                            }
+                            targ = rand.Next(0, index);
+                            moves.Add(next[targ]);
+                            visited.Add(current);
+                            current = new Point(current.X + moves[count].X, current.Y + moves[count].Y);
+                            count++;
+                        }
+                    }
+                }
             }
         }
     }
