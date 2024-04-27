@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 
@@ -238,6 +237,7 @@ namespace maze
 
             progressBar1.Visible = false;
             time.Visible = true;
+            btnSolve.Visible = true;
 
             time.Text = "Generated in " + elapsedTime.ToString() + "ms";
         }
@@ -258,9 +258,16 @@ namespace maze
         }
 
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnSolve_Click(object sender, EventArgs e)
         {
+            var watch = new Stopwatch();
+            watch.Start();
+
             solve();
+
+            watch.Stop();
+            solveTime.Text = "Solved in " + watch.ElapsedMilliseconds.ToString() + "ms.";
+            solveTime.Visible = true;
         }
 
         public Color getPixelColor(Control control, Point location)//function that checks the pixel color of a given point
@@ -273,146 +280,136 @@ namespace maze
             }
             Color pixelColor = bitmap.GetPixel(0, 0);
             bitmap.Dispose();
-            Console.WriteLine(pixelColor.ToString());
             return pixelColor;
         }
 
-        
+
 
         private void solve()//maze solver using DFS algorithm
         {
             Random rand = new Random();
 
-            int[] neighbourRowOffsets = { 0, size / 2, size, size / 2 };
-            int[] neighbourColOffsets = { size / 2, size, size / 2, 0 };
+            int[] cellOffsetY = { 0, size / 2, size, size / 2 };
+            int[] cellOffsetX = { size / 2, size, size / 2, 0 };
 
 
-            int[] offsetX = { 0, 1, 0, -1 }; //n, e, s, w
-            int[] offsetY = { -1, 0, 1, 0 };
+            int[] gridOffsetX = { 0, 1, 0, -1 }; //n, e, s, w
+            int[] gridOffsetY = { -1, 0, 1, 0 };
 
             List<Point> moves = new List<Point>(); //list of moves, e.g. up one or left one
             List<Point> visited = new List<Point>(); //visited cells
-            List<Point> intersections = new List<Point>();
+            List<Point> intersections = new List<Point>(); //list of cells with unexplored intersections
 
 
-            Point[] next = new Point[4];
+            Point[] next = new Point[4]; //potential cell that can be moved to
             int index = 0;
 
             Point current = new Point(0, 0); //current point, starting at 0,0
             Color color2 = Color.White;
 
+            Pen myPen = new Pen(Color.Red, 2);
+            Pen myEraser = new Pen(Color.White,2);
+            Graphics g = mazeContainer.CreateGraphics();
+            Point p = new Point(size / 2, size / 2);
+
+
             for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
             {
-                int newY = neighbourRowOffsets[direction];
-                int newX = neighbourColOffsets[direction];
+                int newY = cellOffsetY[direction]; //new coords within current cell that are on each of the four walls
+                int newX = cellOffsetX[direction];
 
-                int dirY = offsetY[direction];
-                int dirX = offsetX[direction];
+                int dirY = gridOffsetY[direction]; //direction the loop is checking, e.g. upwards (0, -1)
+                int dirX = gridOffsetX[direction];
 
-                Point point = new Point(newX, newY);
-                Point nextPoint = new Point(dirX, dirY);
-                
+                Point point = new Point(newX, newY); //point where wall could be
+                Point nextPoint = new Point(dirX, dirY);//next point to be moved to on this index
+
                 Color color1 = getPixelColor(mazeContainer, point);
-             //checks n,e,s,w
+                //checks n,e,s,w
                 if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B) //if the inspected pixel is the same as background, there is no wall
-                {
+                { //really annoyinng to compare all argb values, required though because names will not match even if argb does
                     next[index] = nextPoint; //if no wall, add connecting cell to potential next moves
                     index++;
-                } 
+                }
             }
-            if (index > 1 && !intersections.Contains(current))
+            if (index > 1 && !intersections.Contains(current)) //if there is more than one choice and node isnt already marked as intersection, mark as intersection
             {
                 intersections.Add(current);
             }
 
-            int count = 0;
 
-            int targ = rand.Next(0, index);
-            moves.Add(next[targ]);
-            visited.Add(current);
-            current = new Point (moves[count].X, moves[count].Y);
+            int targ = rand.Next(0, index); //choose random number to select next cell
+            moves.Add(next[targ]); //add move to the list of moves made
+            visited.Add(current); //add current cell to list of visited cells
+            current = new Point(moves[moves.Count - 1].X, moves[moves.Count - 1].Y); //update current cell to the next cell
 
-            count++;
+            g.DrawLine(myPen, p.X, p.Y, p.X + moves[moves.Count-1].X * size, p.Y + moves[moves.Count-1].Y * size);
+            p = new Point(p.X + moves[moves.Count-1].X * size, p.Y + moves[moves.Count - 1].Y * size);
 
-            while (current != new Point(gridSize, gridSize))
+            while (current != new Point(gridSize - 1, gridSize - 1)) //while the current cell is not the end cell
             {
                 index = 0;
-                bool path = false; //boolean to store if a cell has a continuing path from it
+                bool path = false; //boolean to store if a node has a continuing path from it, if false algorithm starts backtracking
 
 
                 for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
                 {
-                    int newY = neighbourRowOffsets[direction];
-                    int newX = neighbourColOffsets[direction];
+                    int newY = cellOffsetY[direction];
+                    int newX = cellOffsetX[direction];
 
-                    int dirY = offsetY[direction];
-                    int dirX = offsetX[direction];
+                    int dirY = gridOffsetY[direction];
+                    int dirX = gridOffsetX[direction];
 
-                    Point point = new Point(current.X*size + newX, current.Y*size + newY);
+                    Point point = new Point(current.X * size + newX, current.Y * size + newY);
                     Point nextPoint = new Point(dirX, dirY);
-                    Color color1 = getPixelColor (mazeContainer, point);
-
+                    Color color1 = getPixelColor(mazeContainer, point);
+                    Point checkPoint = new Point(current.X + dirX, current.Y + dirY);
                     //checks in the order of w, n, e, s
-                    if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B && !visited.Contains(new Point(current.X + dirX, current.Y + dirY)))
+                    if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B)
                     {
-                        next[index] = nextPoint; //if no wall and not already visited, add to next moves
-                        index++;
-                        path = true;
+                        if (!visited.Contains(checkPoint))
+                        {
+                            next[index] = nextPoint; //if no wall and not already visited, add to next moves
+                            index++;
+                            path = true;
+                        }
                     }
                 }
-
+                if (index > 1 && !intersections.Contains(current))
+                {
+                    intersections.Add(current);
+                }
+                else if (index <= 1 && intersections.Contains(current))
+                {
+                    intersections.Remove(current);
+                }
                 if (path)
                 {
                     targ = rand.Next(0, index);
                     moves.Add(next[targ]);
                     visited.Add(current);
-                    current = new Point(current.X + moves[count].X, current.Y + moves[count].Y);
-                    count++;
-                    if (index > 1 && !intersections.Contains(current))
-                    {
-                        intersections.Add(current);
-                    }
+                    current = new Point(current.X + moves[moves.Count - 1].X, current.Y + moves[moves.Count - 1].Y);
+
+                    g.DrawLine(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
+                    p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
                 }
                 else
                 {
                     while (!intersections.Contains(current))
                     {
-                        current = new Point(current.X - moves[count].X, current.Y - moves[count].Y);
-                        moves.RemoveAt(count);
-                        count--;
+                        visited.Add(current);
+                        current = new Point(current.X - moves[moves.Count - 1].X, current.Y - moves[moves.Count - 1].Y);
+
+                        g.DrawLine(myEraser, p.X, p.Y, p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size);
+                        p = new Point(p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size);
+
+                        moves.RemoveAt(moves.Count - 1);
 
 
-
-                        if (intersections.Contains(current))
-                        {
-                            for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
-                            {
-                                int newY = neighbourRowOffsets[direction];
-                                int newX = neighbourColOffsets[direction];
-
-                                int dirY = offsetY[direction];
-                                int dirX = offsetX[direction];
-
-                                Point point = new Point(current.X*size + newX, current.Y*size + newY);
-                                Point nextPoint = new Point(dirX, dirY);
-                                Color color1 = getPixelColor(mazeContainer, point);
-
-                                //checks in the order of w, n, e, s
-                                if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B && !visited.Contains(new Point(current.X + dirX, current.Y + dirY)))
-                                {
-                                    next[index] = nextPoint; //if no wall and not already visited, add to next moves
-                                    index++;
-                                }
-                            }
-                            targ = rand.Next(0, index);
-                            moves.Add(next[targ]);
-                            visited.Add(current);
-                            current = new Point(current.X + moves[count].X, current.Y + moves[count].Y);
-                            count++;
-                        }
                     }
                 }
             }
+            MessageBox.Show("Solver complete");
         }
     }
 }

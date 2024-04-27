@@ -30,11 +30,12 @@
         {
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.solveTime = new System.Windows.Forms.Label();
+            this.btnSolve = new System.Windows.Forms.Button();
             this.time = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.gridSizeInput = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
             this.mazeContainer = new System.Windows.Forms.Panel();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -51,6 +52,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.solveTime);
+            this.groupBox1.Controls.Add(this.btnSolve);
             this.groupBox1.Controls.Add(this.time);
             this.groupBox1.Controls.Add(this.progressBar1);
             this.groupBox1.Controls.Add(this.label1);
@@ -58,10 +61,31 @@
             this.groupBox1.Controls.Add(this.buttonGenerate);
             this.groupBox1.Location = new System.Drawing.Point(1033, 22);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(185, 84);
+            this.groupBox1.Size = new System.Drawing.Size(185, 113);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Maze Controls";
+            // 
+            // solveTime
+            // 
+            this.solveTime.AutoSize = true;
+            this.solveTime.Location = new System.Drawing.Point(87, 89);
+            this.solveTime.Name = "solveTime";
+            this.solveTime.Size = new System.Drawing.Size(55, 13);
+            this.solveTime.TabIndex = 5;
+            this.solveTime.Text = "solveTime";
+            this.solveTime.Visible = false;
+            // 
+            // btnSolve
+            // 
+            this.btnSolve.Location = new System.Drawing.Point(6, 84);
+            this.btnSolve.Name = "btnSolve";
+            this.btnSolve.Size = new System.Drawing.Size(75, 23);
+            this.btnSolve.TabIndex = 4;
+            this.btnSolve.Text = "Solve";
+            this.btnSolve.UseVisualStyleBackColor = true;
+            this.btnSolve.Visible = false;
+            this.btnSolve.Click += new System.EventHandler(this.btnSolve_Click);
             // 
             // time
             // 
@@ -96,16 +120,6 @@
             this.gridSizeInput.TabIndex = 0;
             this.gridSizeInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.gridSizeInput_KeyDown);
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(1013, 235);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // mazeContainer
             // 
             this.mazeContainer.BackColor = System.Drawing.Color.White;
@@ -121,7 +135,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1234, 1041);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.mazeContainer);
             this.Controls.Add(this.groupBox1);
             this.DoubleBuffered = true;
@@ -141,8 +154,9 @@
         private System.Windows.Forms.TextBox gridSizeInput;
         private System.Windows.Forms.Label time;
         private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnSolve;
         private System.Windows.Forms.Panel mazeContainer;
+        private System.Windows.Forms.Label solveTime;
     }
 }
 
