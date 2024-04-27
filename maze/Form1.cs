@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using System.IO;
 
 
 namespace maze
@@ -15,50 +16,8 @@ namespace maze
 
         }
 
-
-
-        private static int gridSize; //number of cells in each row and column
-        private int progress;
-
-
-
-
-        private int size;
-
-
-
-        private void newMakeCells()
+        private void makeCells(int gridSize, int size)
         {
-            try
-            {
-                gridSize = Convert.ToInt32(gridSizeInput.Text);
-                if (gridSize < 1)
-                {
-                    gridSize = 50;
-                    MessageBox.Show("Invalid input (" + gridSizeInput.Text + "). Grid size set to default(50).");
-                }
-                if (gridSize > 300)
-                {
-                    gridSize = 300;
-                    MessageBox.Show("Input too large (" + gridSizeInput.Text + "). " + "Grid size set to max (300).");
-                }
-            }
-            catch
-            {
-                gridSize = 50;
-                MessageBox.Show("Invalid input (" + gridSizeInput.Text + ") . Grid size set to default (50).");
-            }
-            size = (mazeContainer.Width / gridSize);
-
-            mazeContainer.Height = mazeContainer.Height + 1;
-            mazeContainer.Width = mazeContainer.Width + 1;
-
-            progressBar1.Maximum = gridSize * gridSize;
-            progress = 0;
-
-
-
-
             Pen myPen = new Pen(Color.Black, 1);
             Graphics g = mazeContainer.CreateGraphics();
 
@@ -80,25 +39,8 @@ namespace maze
 
 
 
-        private void drawMaze() //uses a randomised prim's algorithm to generate the maze
+        private void drawMaze(int gridSize, int size) //uses a randomised prim's algorithm to generate the maze
         {
-            try
-            {
-                gridSize = Convert.ToInt32(gridSizeInput.Text);
-                if (gridSize < 1)
-                {
-                    gridSize = 50;
-                }
-                if (gridSize > 300)
-                {
-                    gridSize = 300;
-                }
-            }
-            catch
-            {
-                gridSize = 50;
-            }
-
             Random rand = new Random();
 
             int i = rand.Next(0, gridSize);//randomly choosing a cell 
@@ -125,6 +67,10 @@ namespace maze
                     potentialNext.Add(nextPoint); //adds cell to list if it is inside the grid
                 }
             }
+
+
+            progressBar1.Maximum = gridSize * gridSize;
+            int progress = 0;
 
             int count = 0;
             while (count < (gridSize * gridSize - 1))
@@ -216,11 +162,11 @@ namespace maze
 
         private void generate()
         {
-
             time.Visible = false;
             progressBar1.Visible = true;
 
             var watch = new Stopwatch();
+            watch.Reset();
             watch.Start();
             Graphics g = mazeContainer.CreateGraphics();
             Color color = mazeContainer.BackColor;
@@ -229,8 +175,34 @@ namespace maze
             g.Clear(color);  //disposing of the maze to clear memory, allows for multiple generations without memory leak
             g.Dispose();
 
-            newMakeCells();
-            drawMaze();
+            int gridSize;
+            try
+            {
+                gridSize = Convert.ToInt32(gridSizeInput.Text);
+                if (gridSize < 1)
+                {
+                    gridSize = 50;
+                    MessageBox.Show("Invalid input (" + gridSizeInput.Text + "). Grid size set to default(50).");
+                }
+                if (gridSize > 300)
+                {
+                    gridSize = 300;
+                    MessageBox.Show("Input too large (" + gridSizeInput.Text + "). " + "Grid size set to max (300).");
+                }
+            }
+            catch
+            {
+                gridSize = 50;
+                MessageBox.Show("Invalid input (" + gridSizeInput.Text + ") . Grid size set to default (50).");
+            }
+
+            mazeContainer.Size = new Size(900, 900);
+            int size = (mazeContainer.Width / gridSize);
+            mazeContainer.Size = new Size(901, 901);
+
+
+            makeCells(gridSize, size);
+            drawMaze(gridSize, size);
 
             watch.Stop();
             var elapsedTime = watch.ElapsedMilliseconds;
@@ -261,22 +233,30 @@ namespace maze
         private void btnSolve_Click(object sender, EventArgs e)
         {
             var watch = new Stopwatch();
+            watch.Reset();
             watch.Start();
 
-            solve();
+            int gridSize = Convert.ToInt32(gridSizeInput.Text);
+
+            int size = (mazeContainer.Width / gridSize);
+
+
+            solve(gridSize, size);
 
             watch.Stop();
-            solveTime.Text = "Solved in " + watch.ElapsedMilliseconds.ToString() + "ms.";
+            solveTime.Text = "Solved in ~" + (watch.ElapsedMilliseconds / 1000).ToString() + "s.";
             solveTime.Visible = true;
+            MessageBox.Show("Solver complete");
+
         }
 
         public Color getPixelColor(Control control, Point location)//function that checks the pixel color of a given point
         {
-            Point screenPoint = control.PointToScreen(location);
+            Point screenPoint = control.PointToScreen(location); //converts point in the mazeContainer to a point on the screen
             Bitmap bitmap = new Bitmap(1, 1);
             using (Graphics g = Graphics.FromImage(bitmap))
             {
-                g.CopyFromScreen(screenPoint.X, screenPoint.Y, 0, 0, new Size(1, 1));
+                g.CopyFromScreen(screenPoint.X, screenPoint.Y, 0, 0, new Size(1, 1)); //captures pixel at desired point
             }
             Color pixelColor = bitmap.GetPixel(0, 0);
             bitmap.Dispose();
@@ -285,7 +265,7 @@ namespace maze
 
 
 
-        private void solve()//maze solver using DFS algorithm
+        private void solve(int gridSize, int size)//maze solver using DFS algorithm
         {
             Random rand = new Random();
 
@@ -302,15 +282,15 @@ namespace maze
 
 
             Point[] next = new Point[4]; //potential cell that can be moved to
-            int index = 0;
+            int index = 0; //index for next
 
             Point current = new Point(0, 0); //current point, starting at 0,0
-            Color color2 = Color.White;
+            Color color2 = Color.White; //color of background
 
-            Pen myPen = new Pen(Color.Red, 2);
-            Pen myEraser = new Pen(Color.White,2);
+            Pen myPen = new Pen(Color.Red, 2); //solver line
+            Pen myEraser = new Pen(Color.White, 2); //to remove solver line during backtracking
             Graphics g = mazeContainer.CreateGraphics();
-            Point p = new Point(size / 2, size / 2);
+            Point p = new Point(size / 2, size / 2); //solver line starting point
 
 
             for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
@@ -322,13 +302,13 @@ namespace maze
                 int dirX = gridOffsetX[direction];
 
                 Point point = new Point(newX, newY); //point where wall could be
-                Point nextPoint = new Point(dirX, dirY);//next point to be moved to on this index
+                Point nextMove = new Point(dirX, dirY);//next point to be moved to on this index
 
                 Color color1 = getPixelColor(mazeContainer, point);
                 //checks n,e,s,w
                 if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B) //if the inspected pixel is the same as background, there is no wall
                 { //really annoyinng to compare all argb values, required though because names will not match even if argb does
-                    next[index] = nextPoint; //if no wall, add connecting cell to potential next moves
+                    next[index] = nextMove; //if no wall, add connecting cell to potential next moves
                     index++;
                 }
             }
@@ -343,8 +323,8 @@ namespace maze
             visited.Add(current); //add current cell to list of visited cells
             current = new Point(moves[moves.Count - 1].X, moves[moves.Count - 1].Y); //update current cell to the next cell
 
-            g.DrawLine(myPen, p.X, p.Y, p.X + moves[moves.Count-1].X * size, p.Y + moves[moves.Count-1].Y * size);
-            p = new Point(p.X + moves[moves.Count-1].X * size, p.Y + moves[moves.Count - 1].Y * size);
+            g.DrawLine(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
+            p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
 
             while (current != new Point(gridSize - 1, gridSize - 1)) //while the current cell is not the end cell
             {
@@ -361,29 +341,35 @@ namespace maze
                     int dirX = gridOffsetX[direction];
 
                     Point point = new Point(current.X * size + newX, current.Y * size + newY);
-                    Point nextPoint = new Point(dirX, dirY);
-                    Color color1 = getPixelColor(mazeContainer, point);
+                    Point nextMove = new Point(dirX, dirY);
                     Point checkPoint = new Point(current.X + dirX, current.Y + dirY);
+
+                    Color color1 = getPixelColor(mazeContainer, point);
                     //checks in the order of w, n, e, s
+
                     if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B)
                     {
                         if (!visited.Contains(checkPoint))
                         {
-                            next[index] = nextPoint; //if no wall and not already visited, add to next moves
+                            next[index] = nextMove; //if no wall and not already visited, add to next moves
                             index++;
                             path = true;
                         }
                     }
                 }
-                if (index > 1 && !intersections.Contains(current))
+
+
+                if (index > 1 && !intersections.Contains(current)) //records intersection if multiple paths and its not already marked
                 {
                     intersections.Add(current);
                 }
-                else if (index <= 1 && intersections.Contains(current))
+                else if (index <= 1 && intersections.Contains(current)) //removes intersection if it is recorded but there are no longer multiple paths
                 {
                     intersections.Remove(current);
                 }
-                if (path)
+
+
+                if (path) //if there is an unexplored path
                 {
                     targ = rand.Next(0, index);
                     moves.Add(next[targ]);
@@ -393,23 +379,62 @@ namespace maze
                     g.DrawLine(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
                     p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
                 }
-                else
+                else //if there is no unexplored path (dead end)
                 {
-                    while (!intersections.Contains(current))
+                    while (!intersections.Contains(current)) //backtrack until a new path can be found
                     {
                         visited.Add(current);
                         current = new Point(current.X - moves[moves.Count - 1].X, current.Y - moves[moves.Count - 1].Y);
 
-                        g.DrawLine(myEraser, p.X, p.Y, p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size);
+                        g.DrawLine(myEraser, p.X, p.Y, p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size); //erase solver line on incorrect path
                         p = new Point(p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size);
 
                         moves.RemoveAt(moves.Count - 1);
-
-
                     }
                 }
             }
-            MessageBox.Show("Solver complete");
+        }
+
+        private void collectSolverDiagnostics()
+        {
+            var watch = new Stopwatch();
+            string[] times = new string[25];
+            int index = 0;
+            for(int i = 1; i < 6; i++)
+            {
+                mazeContainer.Size = new Size(900, 900);
+                int gridSize = 10 * i;
+                int size = (mazeContainer.Width / gridSize);
+                mazeContainer.Size = new Size(901, 901);
+
+                for (int j=0; j < 5; j++)
+                {
+                    Graphics g = mazeContainer.CreateGraphics();
+                    g.Clear(mazeContainer.BackColor);
+                    g.Dispose();
+
+                    watch.Reset();
+                    watch.Start();
+                    
+                    makeCells(gridSize, size);
+                    drawMaze(gridSize, size);
+                    solve(gridSize, size);
+
+                    watch.Stop();
+
+                    times[index] = watch.ElapsedMilliseconds.ToString();
+                    index++;
+                }
+            }
+
+            string filePath = "R:\\out\\out.txt";
+            File.WriteAllLines(filePath, times);
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            collectSolverDiagnostics();
         }
     }
 }

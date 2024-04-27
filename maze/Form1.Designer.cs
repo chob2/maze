@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.gridSizeInput = new System.Windows.Forms.TextBox();
             this.mazeContainer = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -129,12 +130,23 @@
             this.mazeContainer.Size = new System.Drawing.Size(900, 900);
             this.mazeContainer.TabIndex = 3;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(1058, 244);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1234, 1041);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.mazeContainer);
             this.Controls.Add(this.groupBox1);
             this.DoubleBuffered = true;
@@ -157,6 +169,7 @@
         private System.Windows.Forms.Button btnSolve;
         private System.Windows.Forms.Panel mazeContainer;
         private System.Windows.Forms.Label solveTime;
+        private System.Windows.Forms.Button button1;
     }
 }
 
