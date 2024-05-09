@@ -16,9 +16,11 @@ namespace maze
 
         }
 
-        private void makeCells(int gridSize, int size)
+        private void makeCells(int gridSize, int size, Color wallColor)
         {
-            Pen myPen = new Pen(Color.Black, 1);
+
+
+            Pen myPen = new Pen(wallColor, 1);
             Graphics g = mazeContainer.CreateGraphics();
 
             g.DrawLine(myPen, 0, 0, size * gridSize, 0); //north wall
@@ -162,12 +164,17 @@ namespace maze
 
         private void generate()
         {
+
+
+
+
             time.Visible = false;
             progressBar1.Visible = true;
 
             var watch = new Stopwatch();
             watch.Reset();
             watch.Start();
+
             Graphics g = mazeContainer.CreateGraphics();
             Color color = mazeContainer.BackColor;
 
@@ -175,11 +182,15 @@ namespace maze
             g.Clear(color);  //disposing of the maze to clear memory, allows for multiple generations without memory leak
             g.Dispose();
 
+
+            Color wallColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
+            mazeContainer.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
+
             int gridSize;
             try
             {
                 gridSize = Convert.ToInt32(gridSizeInput.Text);
-                if (gridSize < 1)
+                if (gridSize < 2)
                 {
                     gridSize = 50;
                     MessageBox.Show("Invalid input (" + gridSizeInput.Text + "). Grid size set to default(50).");
@@ -201,7 +212,7 @@ namespace maze
             mazeContainer.Size = new Size(901, 901);
 
 
-            makeCells(gridSize, size);
+            makeCells(gridSize, size, wallColor);
             drawMaze(gridSize, size);
 
             watch.Stop();
@@ -210,6 +221,7 @@ namespace maze
             progressBar1.Visible = false;
             time.Visible = true;
             btnSolve.Visible = true;
+            btnExport.Visible = true;
 
             time.Text = "Generated in " + elapsedTime.ToString() + "ms";
         }
@@ -221,13 +233,6 @@ namespace maze
         }
 
 
-        private void gridSizeInput_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                generate();
-            }
-        }
 
 
         private void btnSolve_Click(object sender, EventArgs e)
@@ -235,8 +240,24 @@ namespace maze
             var watch = new Stopwatch();
             watch.Reset();
             watch.Start();
-
-            int gridSize = Convert.ToInt32(gridSizeInput.Text);
+            int gridSize;
+            try
+            {
+                gridSize = Convert.ToInt32(gridSizeInput.Text);
+                if (gridSize < 2)
+                {
+                    gridSize = 50;
+                }
+                if (gridSize > 300)
+                {
+                    gridSize = 300;
+                }
+            }
+            catch
+            {
+                gridSize = 50;
+                MessageBox.Show("Invalid input (" + gridSizeInput.Text + ") . Grid size set to default (50).");
+            }
 
             int size = (mazeContainer.Width / gridSize);
 
@@ -416,7 +437,7 @@ namespace maze
                     watch.Reset();
                     watch.Start();
                     
-                    makeCells(gridSize, size);
+                    //makeCells(gridSize, size);
                     drawMaze(gridSize, size);
                     solve(gridSize, size);
 
@@ -435,6 +456,20 @@ namespace maze
         private void button1_Click(object sender, EventArgs e)
         {
             collectSolverDiagnostics();
+        }
+
+
+
+        private void colorChanged(int value)
+        {
+            if(value < 0)
+            {
+                //make text = 0
+            }
+            else if(value > 255)
+            {
+                //make text = 255
+            }
         }
     }
 }
