@@ -23,6 +23,9 @@ namespace maze
             Pen myPen = new Pen(wallColor, 1);
             Graphics g = mazeContainer.CreateGraphics();
 
+            mazeContainer.Size = new Size(size * gridSize+1, size * gridSize+1);
+
+
             g.DrawLine(myPen, 0, 0, size * gridSize, 0); //north wall
             g.DrawLine(myPen, 0, 0, 0, size * gridSize);
 
@@ -164,10 +167,6 @@ namespace maze
 
         private void generate()
         {
-
-
-
-
             time.Visible = false;
             progressBar1.Visible = true;
 
@@ -183,9 +182,9 @@ namespace maze
             g.Dispose();
 
 
-            Color wallColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
-            mazeContainer.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
-
+            Color wallColor = wallPreview.BackColor;
+            Color backColor = backPreview.BackColor;
+            mazeContainer.BackColor = backColor;
             int gridSize;
             try
             {
@@ -460,15 +459,132 @@ namespace maze
 
 
 
-        private void colorChanged(int value)
+        private int colorChanged(int value)
         {
+            int n;
             if(value < 0)
             {
-                //make text = 0
+                n = 0;
+
             }
             else if(value > 255)
             {
-                //make text = 255
+                n = 255;
+            }
+            else
+            {
+                n = value;
+            }
+            return n;
+
+            
+        }
+
+        private void wallR_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int n = colorChanged(Convert.ToInt32(wallR.Text));
+                wallR.Text = n.ToString();
+                wallPreview.BackColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
+
+            }
+            catch
+            {
+                if(wallR.Text != "")
+                {
+                    wallR.Text = "0";
+                }
+            }
+        }
+
+        private void wallG_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int n = colorChanged(Convert.ToInt32(wallG.Text));
+                wallG.Text = n.ToString();
+                wallPreview.BackColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
+
+            }
+            catch
+            {
+                if (wallG.Text != "")
+                {
+                    wallG.Text = "0";
+                }
+            }
+        }
+
+        private void wallB_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int n = colorChanged(Convert.ToInt32(wallB.Text));
+                wallB.Text = n.ToString();
+                wallPreview.BackColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
+
+            }
+            catch
+            {
+                if (wallB.Text != "")
+                {
+                    wallB.Text = "0";
+                }
+            }
+        }
+
+        private void backR_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int n = colorChanged(Convert.ToInt32(backR.Text));
+                backR.Text = n.ToString();
+                backPreview.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
+
+            }
+            catch
+            {
+                if (backR.Text != "")
+                {
+                    backR.Text = "0";
+                }
+            }
+        }
+
+        private void backG_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int n = colorChanged(Convert.ToInt32(backG.Text));
+                backG.Text = n.ToString();
+                backPreview.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
+
+            }
+            catch
+            {
+                if (backG.Text != "")
+                {
+                    backG.Text = "0";
+                }
+            }
+        }
+
+        private void backB_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int n = colorChanged(Convert.ToInt32(backB.Text));
+                backB.Text = n.ToString();
+                backPreview.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
+
+            }
+            catch
+            {
+                if (backB.Text != "")
+                {
+                    backB.Text = "0";
+                }
             }
         }
     }
