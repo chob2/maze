@@ -29,9 +29,11 @@
         private void InitializeComponent()
         {
             this.buttonGenerate = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.controlContainer = new System.Windows.Forms.GroupBox();
             this.solveTime = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.backPreview = new System.Windows.Forms.PictureBox();
+            this.wallPreview = new System.Windows.Forms.PictureBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -55,13 +57,10 @@
             this.gridSizeInput = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.mazeContainer = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.wallPreview = new System.Windows.Forms.PictureBox();
-            this.backPreview = new System.Windows.Forms.PictureBox();
-            this.groupBox1.SuspendLayout();
+            this.controlContainer.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.wallPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backPreview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.wallPreview)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonGenerate
@@ -74,24 +73,26 @@
             this.buttonGenerate.UseVisualStyleBackColor = true;
             this.buttonGenerate.Click += new System.EventHandler(this.buttonGenerate_Click);
             // 
-            // groupBox1
+            // controlContainer
             // 
-            this.groupBox1.Controls.Add(this.solveTime);
-            this.groupBox1.Controls.Add(this.groupBox2);
-            this.groupBox1.Controls.Add(this.btnExport);
-            this.groupBox1.Controls.Add(this.progressBar1);
-            this.groupBox1.Controls.Add(this.btnSolve);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.time);
-            this.groupBox1.Controls.Add(this.buttonGenerate);
-            this.groupBox1.Controls.Add(this.gridSizeInput);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(963, 22);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(259, 175);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Maze Controls";
+            this.controlContainer.Controls.Add(this.solveTime);
+            this.controlContainer.Controls.Add(this.groupBox2);
+            this.controlContainer.Controls.Add(this.btnExport);
+            this.controlContainer.Controls.Add(this.progressBar1);
+            this.controlContainer.Controls.Add(this.btnSolve);
+            this.controlContainer.Controls.Add(this.label2);
+            this.controlContainer.Controls.Add(this.time);
+            this.controlContainer.Controls.Add(this.buttonGenerate);
+            this.controlContainer.Controls.Add(this.gridSizeInput);
+            this.controlContainer.Controls.Add(this.label1);
+            this.controlContainer.Dock = System.Windows.Forms.DockStyle.Right;
+            this.controlContainer.Location = new System.Drawing.Point(952, 0);
+            this.controlContainer.MaximumSize = new System.Drawing.Size(259, 175);
+            this.controlContainer.Name = "controlContainer";
+            this.controlContainer.Size = new System.Drawing.Size(259, 175);
+            this.controlContainer.TabIndex = 2;
+            this.controlContainer.TabStop = false;
+            this.controlContainer.Text = "Maze Controls";
             // 
             // solveTime
             // 
@@ -128,6 +129,24 @@
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Colours:";
+            // 
+            // backPreview
+            // 
+            this.backPreview.BackColor = System.Drawing.Color.White;
+            this.backPreview.Location = new System.Drawing.Point(196, 39);
+            this.backPreview.Name = "backPreview";
+            this.backPreview.Size = new System.Drawing.Size(43, 14);
+            this.backPreview.TabIndex = 19;
+            this.backPreview.TabStop = false;
+            // 
+            // wallPreview
+            // 
+            this.wallPreview.BackColor = System.Drawing.Color.Black;
+            this.wallPreview.Location = new System.Drawing.Point(196, 13);
+            this.wallPreview.Name = "wallPreview";
+            this.wallPreview.Size = new System.Drawing.Size(43, 14);
+            this.wallPreview.TabIndex = 18;
+            this.wallPreview.TabStop = false;
             // 
             // label11
             // 
@@ -266,7 +285,7 @@
             // 
             // btnExport
             // 
-            this.btnExport.Location = new System.Drawing.Point(178, 106);
+            this.btnExport.Location = new System.Drawing.Point(178, 100);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(75, 23);
             this.btnExport.TabIndex = 7;
@@ -284,7 +303,7 @@
             // 
             // btnSolve
             // 
-            this.btnSolve.Location = new System.Drawing.Point(178, 125);
+            this.btnSolve.Location = new System.Drawing.Point(178, 123);
             this.btnSolve.Name = "btnSolve";
             this.btnSolve.Size = new System.Drawing.Size(75, 23);
             this.btnSolve.TabIndex = 4;
@@ -296,7 +315,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(7, 20);
+            this.label2.Location = new System.Drawing.Point(16, 20);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(30, 13);
             this.label2.TabIndex = 3;
@@ -318,6 +337,8 @@
             this.gridSizeInput.Name = "gridSizeInput";
             this.gridSizeInput.Size = new System.Drawing.Size(83, 20);
             this.gridSizeInput.TabIndex = 0;
+            this.gridSizeInput.Text = "50";
+            this.gridSizeInput.TextChanged += new System.EventHandler(this.gridSizeInput_TextChanged);
             // 
             // label1
             // 
@@ -330,59 +351,33 @@
             // 
             // mazeContainer
             // 
+            this.mazeContainer.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.mazeContainer.BackColor = System.Drawing.Color.White;
-            this.mazeContainer.Location = new System.Drawing.Point(27, 22);
+            this.mazeContainer.Location = new System.Drawing.Point(27, 27);
             this.mazeContainer.Margin = new System.Windows.Forms.Padding(0);
             this.mazeContainer.Name = "mazeContainer";
             this.mazeContainer.Size = new System.Drawing.Size(900, 900);
             this.mazeContainer.TabIndex = 3;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(1114, 392);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // wallPreview
-            // 
-            this.wallPreview.BackColor = System.Drawing.Color.Black;
-            this.wallPreview.Location = new System.Drawing.Point(196, 13);
-            this.wallPreview.Name = "wallPreview";
-            this.wallPreview.Size = new System.Drawing.Size(43, 14);
-            this.wallPreview.TabIndex = 18;
-            this.wallPreview.TabStop = false;
-            // 
-            // backPreview
-            // 
-            this.backPreview.BackColor = System.Drawing.Color.White;
-            this.backPreview.Location = new System.Drawing.Point(196, 39);
-            this.backPreview.Name = "backPreview";
-            this.backPreview.Size = new System.Drawing.Size(43, 14);
-            this.backPreview.TabIndex = 19;
-            this.backPreview.TabStop = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1234, 1041);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(1211, 999);
             this.Controls.Add(this.mazeContainer);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.controlContainer);
             this.DoubleBuffered = true;
+            this.MaximumSize = new System.Drawing.Size(1920, 1080);
+            this.MinimumSize = new System.Drawing.Size(1227, 1038);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.controlContainer.ResumeLayout(false);
+            this.controlContainer.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.wallPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.backPreview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.wallPreview)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -390,14 +385,13 @@
         #endregion
 
         private System.Windows.Forms.Button buttonGenerate;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox controlContainer;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox gridSizeInput;
         private System.Windows.Forms.Label time;
         private System.Windows.Forms.Button btnSolve;
         private System.Windows.Forms.Panel mazeContainer;
         private System.Windows.Forms.Label solveTime;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;

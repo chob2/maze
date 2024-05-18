@@ -175,36 +175,34 @@ namespace maze
             watch.Start();
 
             Graphics g = mazeContainer.CreateGraphics();
-            Color color = mazeContainer.BackColor;
 
 
-            g.Clear(color);  //disposing of the maze to clear memory, allows for multiple generations without memory leak
-            g.Dispose();
+
 
 
             Color wallColor = wallPreview.BackColor;
             Color backColor = backPreview.BackColor;
+
+            if (wallColor.A == backColor.A && wallColor.G == backColor.G && wallColor.B == backColor.B)
+            {
+                wallColor = Color.Black;
+                backColor = Color.White;
+
+                wallR.Text = wallColor.R.ToString();
+                wallG.Text = wallColor.G.ToString();
+                wallB.Text = wallColor.B.ToString();
+
+                backR.Text = backColor.R.ToString();
+                backG.Text = backColor.G.ToString();
+                backB.Text = backColor.B.ToString();
+            }
+            g.Clear(backColor);  //disposing of the maze to clear memory, allows for multiple generations without memory leak
+            g.Dispose();
+
+
             mazeContainer.BackColor = backColor;
-            int gridSize;
-            try
-            {
-                gridSize = Convert.ToInt32(gridSizeInput.Text);
-                if (gridSize < 2)
-                {
-                    gridSize = 50;
-                    MessageBox.Show("Invalid input (" + gridSizeInput.Text + "). Grid size set to default(50).");
-                }
-                if (gridSize > 300)
-                {
-                    gridSize = 300;
-                    MessageBox.Show("Input too large (" + gridSizeInput.Text + "). " + "Grid size set to max (300).");
-                }
-            }
-            catch
-            {
-                gridSize = 50;
-                MessageBox.Show("Invalid input (" + gridSizeInput.Text + ") . Grid size set to default (50).");
-            }
+            int gridSize = Convert.ToInt32(gridSizeInput.Text);
+
 
             mazeContainer.Size = new Size(900, 900);
             int size = (mazeContainer.Width / gridSize);
@@ -239,24 +237,7 @@ namespace maze
             var watch = new Stopwatch();
             watch.Reset();
             watch.Start();
-            int gridSize;
-            try
-            {
-                gridSize = Convert.ToInt32(gridSizeInput.Text);
-                if (gridSize < 2)
-                {
-                    gridSize = 50;
-                }
-                if (gridSize > 300)
-                {
-                    gridSize = 300;
-                }
-            }
-            catch
-            {
-                gridSize = 50;
-                MessageBox.Show("Invalid input (" + gridSizeInput.Text + ") . Grid size set to default (50).");
-            }
+            int gridSize = Convert.ToInt32(gridSizeInput.Text);
 
             int size = (mazeContainer.Width / gridSize);
 
@@ -305,10 +286,14 @@ namespace maze
             int index = 0; //index for next
 
             Point current = new Point(0, 0); //current point, starting at 0,0
-            Color color2 = Color.White; //color of background
+            Color color2 = mazeContainer.BackColor; //color of background
 
-            Pen myPen = new Pen(Color.Red, 2); //solver line
-            Pen myEraser = new Pen(Color.White, 2); //to remove solver line during backtracking
+            Color solverColor = Color.FromArgb(255 - color2.R, 255 - color2.G, 255 - color2.B); //solver line color is opposite to background for most clarity
+
+
+
+            Pen myPen = new Pen(solverColor, 2); //solver line
+            Pen myEraser = new Pen(color2, 2); //to remove solver line during backtracking
             Graphics g = mazeContainer.CreateGraphics();
             Point p = new Point(size / 2, size / 2); //solver line starting point
 
@@ -452,10 +437,7 @@ namespace maze
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            collectSolverDiagnostics();
-        }
+  
 
 
 
@@ -584,6 +566,30 @@ namespace maze
                 if (backB.Text != "")
                 {
                     backB.Text = "0";
+                }
+            }
+        }
+
+        private void gridSizeInput_TextChanged(object sender, EventArgs e)
+        {
+            int input;
+            try
+            {
+                input = Convert.ToInt32(gridSizeInput.Text);
+                if(input < 2)
+                {
+                    gridSizeInput.Text = "2";
+                }
+                else if(input > 300)
+                {
+                    gridSizeInput.Text = "300";
+                }
+            }
+            catch
+            {
+                if(gridSizeInput.Text != "")
+                {
+                    gridSizeInput.Text = "50";
                 }
             }
         }
