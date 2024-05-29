@@ -15,31 +15,34 @@ namespace maze
             InitializeComponent();
 
         }
+        public Bitmap bmp = new Bitmap(900, 900);
+
+        private void bmpUpdate(Pen pen, int x1, int y1, int x2, int y2)
+        {
+            Graphics g = Graphics.FromImage(bmp);
+            g.DrawLine(pen, x1, y1, x2, y2);
+            mazeDisplay.Image = bmp;
+            g.Dispose();
+        }
+
 
         private void makeCells(int gridSize, int size, Color wallColor)
         {
-
-
             Pen myPen = new Pen(wallColor, 1);
-            Graphics g = mazeContainer.CreateGraphics();
-
-            mazeContainer.Size = new Size(size * gridSize+1, size * gridSize+1);
-
-
-            g.DrawLine(myPen, 0, 0, size * gridSize, 0); //north wall
-            g.DrawLine(myPen, 0, 0, 0, size * gridSize);
 
             for (int i = 0; i < gridSize; i++)
             {
-                g.DrawLine(myPen, 0, i * size + size, gridSize * size, i * size + size);
+                bmpUpdate(myPen, 0, i * size + size, gridSize * size, i * size + size);
+
             }
             for (int i = 0; i < gridSize; i++)
             {
-                g.DrawLine(myPen, i * size + size, 0, i * size + size, gridSize * size);
+                bmpUpdate(myPen, i * size + size, 0, i * size + size, gridSize * size);
 
             }
             myPen.Dispose();
-            g.Dispose();
+
+
         }
 
 
@@ -105,8 +108,7 @@ namespace maze
                     }
                 }
 
-                Graphics g = mazeContainer.CreateGraphics();
-                Color color = mazeContainer.BackColor;
+                Color color = mazeDisplay.BackColor;
                 Pen myPen = new Pen(color, 1);
 
                 int targ = rand.Next(0, index);//choosing valid target cell
@@ -115,24 +117,28 @@ namespace maze
                 //if neighbours[targ].X > potentialNext[r].X -> target cell is to the right
                 if (neighbours[targ].X > potentialNext[r].X)
                 {
-                    g.DrawLine(myPen, potentialNext[r].X * size + size, potentialNext[r].Y * size + 1, potentialNext[r].X * size + size, potentialNext[r].Y * size + size - 1);
+                    bmpUpdate(myPen, potentialNext[r].X * size + size, potentialNext[r].Y * size + 1, potentialNext[r].X * size + size, potentialNext[r].Y * size + size - 1);
                 }
                 //if neighbours[targ].X < potentialNext[r].X -> target cell is to the left
                 else if (neighbours[targ].X < potentialNext[r].X)
                 {
-                    g.DrawLine(myPen, potentialNext[r].X * size, potentialNext[r].Y * size + 1, potentialNext[r].X * size, potentialNext[r].Y * size + size - 1);
+                    bmpUpdate(myPen, potentialNext[r].X * size, potentialNext[r].Y * size + 1, potentialNext[r].X * size, potentialNext[r].Y * size + size - 1);
+
                 }
                 //if neighbours[targ].Y < potentialNext[r].Y -> target cell is above
                 else if (neighbours[targ].Y < potentialNext[r].Y)
                 {
                     //wallN[potentialNext[r].Y, potentialNext[r].X].Dispose();
                     //g.DrawLine(myPen, size * j, size * i, size * j + size, size * i);
-                    g.DrawLine(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size);
+                    //g.DrawLine(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size);
+                    bmpUpdate(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size);
+
                 }
                 //if neighbours[targ].Y > potentialNext[r].Y -> target cell is below
                 else if (neighbours[targ].Y > potentialNext[r].Y)
                 {
-                    g.DrawLine(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size + size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size + size);
+                    bmpUpdate(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size + size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size + size);
+
                 }
 
 
@@ -174,7 +180,6 @@ namespace maze
             watch.Reset();
             watch.Start();
 
-            Graphics g = mazeContainer.CreateGraphics();
 
 
 
@@ -196,17 +201,14 @@ namespace maze
                 backG.Text = backColor.G.ToString();
                 backB.Text = backColor.B.ToString();
             }
-            g.Clear(backColor);  //disposing of the maze to clear memory, allows for multiple generations without memory leak
-            g.Dispose();
+            mazeDisplay.Image = null;
+            //bmp.Dispose(); //CHECK IF THIS WORKS (it doesnt, dont think it matters)
 
-
-            mazeContainer.BackColor = backColor;
+            mazeDisplay.BackColor = backColor;
             int gridSize = Convert.ToInt32(gridSizeInput.Text);
 
 
-            mazeContainer.Size = new Size(900, 900);
-            int size = (mazeContainer.Width / gridSize);
-            mazeContainer.Size = new Size(901, 901);
+            int size = (mazeDisplay.Width / gridSize);
 
 
             makeCells(gridSize, size, wallColor);
@@ -226,10 +228,13 @@ namespace maze
 
         private void buttonGenerate_Click(object sender, EventArgs e)
         {
+            int i = Convert.ToInt32(gridSizeInput.Text);
+            if(i < 2)
+            {
+                gridSizeInput.Text = "2";
+            }
             generate();
         }
-
-
 
 
         private void btnSolve_Click(object sender, EventArgs e)
@@ -239,7 +244,7 @@ namespace maze
             watch.Start();
             int gridSize = Convert.ToInt32(gridSizeInput.Text);
 
-            int size = (mazeContainer.Width / gridSize);
+            int size = (mazeDisplay.Width / gridSize);
 
 
             solve(gridSize, size);
@@ -251,6 +256,8 @@ namespace maze
 
         }
 
+
+        //update this fir the bitmap later************
         public Color getPixelColor(Control control, Point location)//function that checks the pixel color of a given point
         {
             Point screenPoint = control.PointToScreen(location); //converts point in the mazeContainer to a point on the screen
@@ -264,7 +271,11 @@ namespace maze
             return pixelColor;
         }
 
-
+        public Color getColor(Point location)
+        {
+            Color pixelColor = bmp.GetPixel(location.X, location.Y);
+            return pixelColor;
+        }
 
         private void solve(int gridSize, int size)//maze solver using DFS algorithm
         {
@@ -286,15 +297,15 @@ namespace maze
             int index = 0; //index for next
 
             Point current = new Point(0, 0); //current point, starting at 0,0
-            Color color2 = mazeContainer.BackColor; //color of background
+            Color color2 = mazeDisplay.BackColor; //color of background
+            Color color3 = wallPreview.BackColor;
 
-            Color solverColor = Color.FromArgb(255 - color2.R, 255 - color2.G, 255 - color2.B); //solver line color is opposite to background for most clarity
+            Color solverColor = Color.FromArgb(((255 - color2.R)+(255-color3.R))/2, ((255 - color2.G)+(255-color3.G))/2, ((255 - color2.B)+(255-color3.B))/2); //solver line color is opposite to background for most clarity
 
 
 
-            Pen myPen = new Pen(solverColor, 2); //solver line
-            Pen myEraser = new Pen(color2, 2); //to remove solver line during backtracking
-            Graphics g = mazeContainer.CreateGraphics();
+            Pen myPen = new Pen(solverColor, 1); //solver line
+            Pen myEraser = new Pen(color2, 1); //to remove solver line during backtracking
             Point p = new Point(size / 2, size / 2); //solver line starting point
 
 
@@ -309,7 +320,7 @@ namespace maze
                 Point point = new Point(newX, newY); //point where wall could be
                 Point nextMove = new Point(dirX, dirY);//next point to be moved to on this index
 
-                Color color1 = getPixelColor(mazeContainer, point);
+                Color color1 = getPixelColor(mazeDisplay, point);
                 //checks n,e,s,w
                 if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B) //if the inspected pixel is the same as background, there is no wall
                 { //really annoyinng to compare all argb values, required though because names will not match even if argb does
@@ -328,7 +339,7 @@ namespace maze
             visited.Add(current); //add current cell to list of visited cells
             current = new Point(moves[moves.Count - 1].X, moves[moves.Count - 1].Y); //update current cell to the next cell
 
-            g.DrawLine(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
+            bmpUpdate(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
             p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
 
             while (current != new Point(gridSize - 1, gridSize - 1)) //while the current cell is not the end cell
@@ -349,7 +360,7 @@ namespace maze
                     Point nextMove = new Point(dirX, dirY);
                     Point checkPoint = new Point(current.X + dirX, current.Y + dirY);
 
-                    Color color1 = getPixelColor(mazeContainer, point);
+                    Color color1 = getPixelColor(mazeDisplay, point);
                     //checks in the order of w, n, e, s
 
                     if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B)
@@ -381,7 +392,7 @@ namespace maze
                     visited.Add(current);
                     current = new Point(current.X + moves[moves.Count - 1].X, current.Y + moves[moves.Count - 1].Y);
 
-                    g.DrawLine(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
+                    bmpUpdate(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
                     p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
                 }
                 else //if there is no unexplored path (dead end)
@@ -391,7 +402,7 @@ namespace maze
                         visited.Add(current);
                         current = new Point(current.X - moves[moves.Count - 1].X, current.Y - moves[moves.Count - 1].Y);
 
-                        g.DrawLine(myEraser, p.X, p.Y, p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size); //erase solver line on incorrect path
+                        bmpUpdate(myEraser, p.X, p.Y, p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size);
                         p = new Point(p.X - moves[moves.Count - 1].X * size, p.Y - moves[moves.Count - 1].Y * size);
 
                         moves.RemoveAt(moves.Count - 1);
@@ -400,7 +411,7 @@ namespace maze
             }
         }
 
-        private void collectSolverDiagnostics()
+       /* private void collectSolverDiagnostics()
         {
             var watch = new Stopwatch();
             string[] times = new string[25];
@@ -435,7 +446,7 @@ namespace maze
             string filePath = "R:\\out\\out.txt";
             File.WriteAllLines(filePath, times);
 
-        }
+        }*/
 
   
 
@@ -576,9 +587,9 @@ namespace maze
             try
             {
                 input = Convert.ToInt32(gridSizeInput.Text);
-                if(input < 2)
+                if(input < 1)
                 {
-                    gridSizeInput.Text = "2";
+                    gridSizeInput.Text = "1";
                 }
                 else if(input > 300)
                 {
@@ -592,6 +603,11 @@ namespace maze
                     gridSizeInput.Text = "50";
                 }
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+           // bitmapUpdate();
         }
     }
 }
