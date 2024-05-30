@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.IO;
 
@@ -15,7 +16,7 @@ namespace maze
             InitializeComponent();
 
         }
-        public Bitmap bmp = new Bitmap(900, 900);
+        public Bitmap bmp = new Bitmap(901, 901);
 
         private void bmpUpdate(Pen pen, int x1, int y1, int x2, int y2)
         {
@@ -26,22 +27,31 @@ namespace maze
         }
 
 
-        private void makeCells(int gridSize, int size, Color wallColor)
+        private void makeCells(int gridSize, int size, Color wallColor, Color backColor)
         {
             Pen myPen = new Pen(wallColor, 1);
+            Brush myBrush = new Brush(backColor);
+            Rectangle rect = new Rectangle(mazeDisplay.Location.X, mazeDisplay.Location.Y, 900, 900);
+            Graphics g = Graphics.FromImage(bmp);
+            g.FillRectangle(backColor, rect);
+
+
+            bmpUpdate(myPen, 0, 0, gridSize * size, 0); //top border
+            bmpUpdate(myPen, 0, 0, 0, gridSize * size); //left border
+
 
             for (int i = 0; i < gridSize; i++)
             {
-                bmpUpdate(myPen, 0, i * size + size, gridSize * size, i * size + size);
+                bmpUpdate(myPen, 0, i * size + size, gridSize * size, i * size + size);//horizontal lines
 
             }
             for (int i = 0; i < gridSize; i++)
             {
-                bmpUpdate(myPen, i * size + size, 0, i * size + size, gridSize * size);
+                bmpUpdate(myPen, i * size + size, 0, i * size + size, gridSize * size);//vert lines
 
             }
             myPen.Dispose();
-
+           // mazeDisplay.Image = bmp;
 
         }
 
@@ -166,7 +176,7 @@ namespace maze
                 count++;
                 progress++;
 
-                this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
+               // this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
             }
         }
 
@@ -201,17 +211,15 @@ namespace maze
                 backG.Text = backColor.G.ToString();
                 backB.Text = backColor.B.ToString();
             }
-            mazeDisplay.Image = null;
+            mazeDisplay.Image = null;//do this one instead probs will be fine idk about memory though i am making a lot of imagaes and not disposing of them
             //bmp.Dispose(); //CHECK IF THIS WORKS (it doesnt, dont think it matters)
 
             mazeDisplay.BackColor = backColor;
             int gridSize = Convert.ToInt32(gridSizeInput.Text);
+            int size = (900 / gridSize);
 
 
-            int size = (mazeDisplay.Width / gridSize);
-
-
-            makeCells(gridSize, size, wallColor);
+            makeCells(gridSize, size, wallColor, backColor);
             drawMaze(gridSize, size);
 
             watch.Stop();
@@ -257,22 +265,8 @@ namespace maze
         }
 
 
-        //update this fir the bitmap later************
-        public Color getPixelColor(Control control, Point location)//function that checks the pixel color of a given point
-        {
-            Point screenPoint = control.PointToScreen(location); //converts point in the mazeContainer to a point on the screen
-            Bitmap bitmap = new Bitmap(1, 1);
-            using (Graphics g = Graphics.FromImage(bitmap))
-            {
-                g.CopyFromScreen(screenPoint.X, screenPoint.Y, 0, 0, new Size(1, 1)); //captures pixel at desired point
-            }
-            Color pixelColor = bitmap.GetPixel(0, 0);
-            bitmap.Dispose();
-            return pixelColor;
-        }
-
-        public Color getColor(Point location)
-        {
+        public Color getColor(Point location) //references bitmap for pixel color at desired point
+        { //idk why but this made solving nearly instant
             Color pixelColor = bmp.GetPixel(location.X, location.Y);
             return pixelColor;
         }
@@ -320,7 +314,8 @@ namespace maze
                 Point point = new Point(newX, newY); //point where wall could be
                 Point nextMove = new Point(dirX, dirY);//next point to be moved to on this index
 
-                Color color1 = getPixelColor(mazeDisplay, point);
+                //Color color1 = getPixelColor(mazeDisplay, point);
+                Color color1 = getColor(point);
                 //checks n,e,s,w
                 if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B) //if the inspected pixel is the same as background, there is no wall
                 { //really annoyinng to compare all argb values, required though because names will not match even if argb does
@@ -360,7 +355,8 @@ namespace maze
                     Point nextMove = new Point(dirX, dirY);
                     Point checkPoint = new Point(current.X + dirX, current.Y + dirY);
 
-                    Color color1 = getPixelColor(mazeDisplay, point);
+                    //Color color1 = getPixelColor(mazeDisplay, point);
+                    Color color1 = getColor(point);
                     //checks in the order of w, n, e, s
 
                     if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B)
@@ -605,9 +601,19 @@ namespace maze
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnExport_Click(object sender, EventArgs e)
         {
-           // bitmapUpdate();
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg";
+            saveFileDialog.Title = "Save As";
+            saveFileDialog.DefaultExt = "png";
+
+            if(saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = saveFileDialog.FileName;
+                ImageFormat format = saveFileDialog.FilterIndex == 1 ? ImageFormat.Png : ImageFormat.Jpeg;
+                bmp.Save(filePath, format);
+            }
         }
     }
 }
