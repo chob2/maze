@@ -16,24 +16,33 @@ namespace maze
             InitializeComponent();
 
         }
-        public Bitmap bmp = new Bitmap(901, 901);
+        private Bitmap bmp = new Bitmap(901, 901);
+        private int getGridSize(string input)
+        {
+            int x = Convert.ToInt32(input);
+            return x;
+        }
+        private int gridSize;
+        private int size;
+        
 
         private void bmpUpdate(Pen pen, int x1, int y1, int x2, int y2)
         {
             Graphics g = Graphics.FromImage(bmp);
             g.DrawLine(pen, x1, y1, x2, y2);
-            mazeDisplay.Image = bmp;
             g.Dispose();
         }
 
 
-        private void makeCells(int gridSize, int size, Color wallColor, Color backColor)
+        private void makeCells(Color wallColor, Color backColor)
         {
             Pen myPen = new Pen(wallColor, 1);
-            Brush myBrush = new Brush(backColor);
-            Rectangle rect = new Rectangle(mazeDisplay.Location.X, mazeDisplay.Location.Y, 900, 900);
-            Graphics g = Graphics.FromImage(bmp);
-            g.FillRectangle(backColor, rect);
+            SolidBrush myBrush = new SolidBrush(backColor);
+            Rectangle rect = new Rectangle(0, 0, size * gridSize, size * gridSize);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.FillRectangle(myBrush, rect);
+            }
 
 
             bmpUpdate(myPen, 0, 0, gridSize * size, 0); //top border
@@ -51,13 +60,11 @@ namespace maze
 
             }
             myPen.Dispose();
-           // mazeDisplay.Image = bmp;
-
         }
 
 
 
-        private void drawMaze(int gridSize, int size) //uses a randomised prim's algorithm to generate the maze
+        private void drawMaze(Color wallColor) //uses a randomised prim's algorithm to generate the maze
         {
             Random rand = new Random();
 
@@ -178,12 +185,17 @@ namespace maze
 
                // this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
             }
+            mazeDisplay.Image = bmp;
+
         }
 
 
         private void generate()
         {
+            labelStart.Visible = false;
+            labelEnd.Visible = false;
             time.Visible = false;
+            solveTime.Visible = false;
             progressBar1.Visible = true;
 
             var watch = new Stopwatch();
@@ -213,24 +225,33 @@ namespace maze
             }
             mazeDisplay.Image = null;//do this one instead probs will be fine idk about memory though i am making a lot of imagaes and not disposing of them
             //bmp.Dispose(); //CHECK IF THIS WORKS (it doesnt, dont think it matters)
+            using(Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.White);
+            }
 
             mazeDisplay.BackColor = backColor;
-            int gridSize = Convert.ToInt32(gridSizeInput.Text);
-            int size = (900 / gridSize);
+
+            gridSize = getGridSize(gridSizeInput.Text);
+            size = (900 / gridSize);
 
 
-            makeCells(gridSize, size, wallColor, backColor);
-            drawMaze(gridSize, size);
+            makeCells(wallColor, backColor);
+            drawMaze(wallColor);
+
+            labelStart.Visible = true;
+            labelEnd.Location = new Point(55 + gridSize*size, 26 + gridSize*size);
+            labelEnd.Visible = true;
 
             watch.Stop();
-            var elapsedTime = watch.ElapsedMilliseconds;
+            long elapsedTime = watch.ElapsedMilliseconds/1000;
 
             progressBar1.Visible = false;
             time.Visible = true;
             btnSolve.Visible = true;
             btnExport.Visible = true;
 
-            time.Text = "Generated in " + elapsedTime.ToString() + "ms";
+            time.Text = "Generated in " + elapsedTime.ToString() + "s";
         }
 
 
@@ -248,27 +269,34 @@ namespace maze
         private void btnSolve_Click(object sender, EventArgs e)
         {
             var watch = new Stopwatch();
+            btnSolve.Visible = false;
             watch.Reset();
             watch.Start();
-            int gridSize = Convert.ToInt32(gridSizeInput.Text);
-
-            int size = (mazeDisplay.Width / gridSize);
-
+            
 
             solve(gridSize, size);
 
             watch.Stop();
-            solveTime.Text = "Solved in ~" + (watch.ElapsedMilliseconds / 1000).ToString() + "s.";
+            solveTime.Text = "Solved in " + (watch.ElapsedMilliseconds).ToString() + "ms.";
             solveTime.Visible = true;
-            MessageBox.Show("Solver complete");
+            //MessageBox.Show("Solver complete");
 
         }
 
 
-        public Color getColor(Point location) //references bitmap for pixel color at desired point
+        private Color getColor(Point location) //references bitmap for pixel color at desired point
         { //idk why but this made solving nearly instant
             Color pixelColor = bmp.GetPixel(location.X, location.Y);
             return pixelColor;
+        }
+
+        private int getSolverProgress(int x, int y)
+        {
+            double dMax = Math.Sqrt(2*Math.Pow(gridSize * size,2));
+            double dCurrent = Math.Sqrt(Math.Pow(gridSize * size-x,2) + Math.Pow(gridSize*size-y,2));
+
+            int progress = Convert.ToInt32(dCurrent/dMax*100);
+            return progress;
         }
 
         private void solve(int gridSize, int size)//maze solver using DFS algorithm
@@ -404,47 +432,52 @@ namespace maze
                         moves.RemoveAt(moves.Count - 1);
                     }
                 }
+
+                getSolverProgress(p.X, p.Y);
+               
             }
+            mazeDisplay.Image = bmp;
+
         }
 
-       /* private void collectSolverDiagnostics()
-        {
-            var watch = new Stopwatch();
-            string[] times = new string[25];
-            int index = 0;
-            for(int i = 1; i < 6; i++)
-            {
-                mazeContainer.Size = new Size(900, 900);
-                int gridSize = 10 * i;
-                int size = (mazeContainer.Width / gridSize);
-                mazeContainer.Size = new Size(901, 901);
+        /* private void collectSolverDiagnostics()
+         {
+             var watch = new Stopwatch();
+             string[] times = new string[25];
+             int index = 0;
+             for(int i = 1; i < 6; i++)
+             {
+                 mazeContainer.Size = new Size(900, 900);
+                 int gridSize = 10 * i;
+                 int size = (mazeContainer.Width / gridSize);
+                 mazeContainer.Size = new Size(901, 901);
 
-                for (int j=0; j < 5; j++)
-                {
-                    Graphics g = mazeContainer.CreateGraphics();
-                    g.Clear(mazeContainer.BackColor);
-                    g.Dispose();
+                 for (int j=0; j < 5; j++)
+                 {
+                     Graphics g = mazeContainer.CreateGraphics();
+                     g.Clear(mazeContainer.BackColor);
+                     g.Dispose();
 
-                    watch.Reset();
-                    watch.Start();
-                    
-                    //makeCells(gridSize, size);
-                    drawMaze(gridSize, size);
-                    solve(gridSize, size);
+                     watch.Reset();
+                     watch.Start();
 
-                    watch.Stop();
+                     //makeCells(gridSize, size);
+                     drawMaze(gridSize, size);
+                     solve(gridSize, size);
 
-                    times[index] = watch.ElapsedMilliseconds.ToString();
-                    index++;
-                }
-            }
+                     watch.Stop();
 
-            string filePath = "R:\\out\\out.txt";
-            File.WriteAllLines(filePath, times);
+                     times[index] = watch.ElapsedMilliseconds.ToString();
+                     index++;
+                 }
+             }
 
-        }*/
+             string filePath = "R:\\out\\out.txt";
+             File.WriteAllLines(filePath, times);
 
-  
+         }*/
+
+
 
 
 
@@ -608,11 +641,25 @@ namespace maze
             saveFileDialog.Title = "Save As";
             saveFileDialog.DefaultExt = "png";
 
+            int gridSize = Convert.ToInt32(gridSizeInput.Text);
+            int size = 900 / gridSize;
+
+
+            Rectangle crop = new Rectangle(0,0, gridSize*size,gridSize*size);
+
+            Bitmap image = new Bitmap(crop.Width, crop.Height);
+
+            using(Graphics g = Graphics.FromImage(image))
+            {
+                g.DrawImage(bmp, new Rectangle(0,0,crop.Width,crop.Height),crop,GraphicsUnit.Pixel);
+            }
+
+
             if(saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string filePath = saveFileDialog.FileName;
                 ImageFormat format = saveFileDialog.FilterIndex == 1 ? ImageFormat.Png : ImageFormat.Jpeg;
-                bmp.Save(filePath, format);
+                image.Save(filePath, format);
             }
         }
     }

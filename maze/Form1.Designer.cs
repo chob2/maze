@@ -49,14 +49,16 @@
             this.backG = new System.Windows.Forms.TextBox();
             this.backR = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.btnExport = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.btnExport = new System.Windows.Forms.Button();
             this.btnSolve = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.time = new System.Windows.Forms.Label();
             this.gridSizeInput = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.mazeDisplay = new System.Windows.Forms.PictureBox();
+            this.labelStart = new System.Windows.Forms.Label();
+            this.labelEnd = new System.Windows.Forms.Label();
             this.controlContainer.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.backPreview)).BeginInit();
@@ -78,8 +80,8 @@
             // 
             this.controlContainer.Controls.Add(this.solveTime);
             this.controlContainer.Controls.Add(this.groupBox2);
-            this.controlContainer.Controls.Add(this.btnExport);
             this.controlContainer.Controls.Add(this.progressBar1);
+            this.controlContainer.Controls.Add(this.btnExport);
             this.controlContainer.Controls.Add(this.btnSolve);
             this.controlContainer.Controls.Add(this.label2);
             this.controlContainer.Controls.Add(this.time);
@@ -87,7 +89,7 @@
             this.controlContainer.Controls.Add(this.gridSizeInput);
             this.controlContainer.Controls.Add(this.label1);
             this.controlContainer.Dock = System.Windows.Forms.DockStyle.Right;
-            this.controlContainer.Location = new System.Drawing.Point(952, 0);
+            this.controlContainer.Location = new System.Drawing.Point(960, 0);
             this.controlContainer.MaximumSize = new System.Drawing.Size(259, 175);
             this.controlContainer.Name = "controlContainer";
             this.controlContainer.Size = new System.Drawing.Size(259, 175);
@@ -98,7 +100,7 @@
             // solveTime
             // 
             this.solveTime.AutoSize = true;
-            this.solveTime.Location = new System.Drawing.Point(7, 143);
+            this.solveTime.Location = new System.Drawing.Point(6, 143);
             this.solveTime.Name = "solveTime";
             this.solveTime.Size = new System.Drawing.Size(55, 13);
             this.solveTime.TabIndex = 5;
@@ -133,7 +135,7 @@
             // 
             // backPreview
             // 
-            this.backPreview.BackColor = System.Drawing.Color.White;
+            this.backPreview.BackColor = System.Drawing.Color.Cyan;
             this.backPreview.Location = new System.Drawing.Point(196, 39);
             this.backPreview.Name = "backPreview";
             this.backPreview.Size = new System.Drawing.Size(43, 14);
@@ -272,7 +274,7 @@
             this.backR.Name = "backR";
             this.backR.Size = new System.Drawing.Size(25, 20);
             this.backR.TabIndex = 13;
-            this.backR.Text = "255";
+            this.backR.Text = "0";
             this.backR.TextChanged += new System.EventHandler(this.backR_TextChanged);
             // 
             // label7
@@ -284,6 +286,14 @@
             this.label7.TabIndex = 10;
             this.label7.Text = "B";
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(4, 146);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(172, 23);
+            this.progressBar1.TabIndex = 4;
+            this.progressBar1.Visible = false;
+            // 
             // btnExport
             // 
             this.btnExport.Location = new System.Drawing.Point(178, 100);
@@ -294,14 +304,6 @@
             this.btnExport.UseVisualStyleBackColor = true;
             this.btnExport.Visible = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(6, 146);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(172, 23);
-            this.progressBar1.TabIndex = 4;
-            this.progressBar1.Visible = false;
             // 
             // btnSolve
             // 
@@ -353,23 +355,47 @@
             // 
             // mazeDisplay
             // 
-            this.mazeDisplay.Location = new System.Drawing.Point(12, 12);
+            this.mazeDisplay.Location = new System.Drawing.Point(55, 25);
             this.mazeDisplay.Name = "mazeDisplay";
             this.mazeDisplay.Size = new System.Drawing.Size(901, 901);
             this.mazeDisplay.TabIndex = 4;
             this.mazeDisplay.TabStop = false;
+            // 
+            // labelStart
+            // 
+            this.labelStart.AutoSize = true;
+            this.labelStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelStart.Location = new System.Drawing.Point(12, 9);
+            this.labelStart.Name = "labelStart";
+            this.labelStart.Size = new System.Drawing.Size(48, 13);
+            this.labelStart.TabIndex = 5;
+            this.labelStart.Text = "START";
+            this.labelStart.Visible = false;
+            // 
+            // labelEnd
+            // 
+            this.labelEnd.AutoSize = true;
+            this.labelEnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelEnd.Location = new System.Drawing.Point(880, 929);
+            this.labelEnd.Name = "labelEnd";
+            this.labelEnd.Size = new System.Drawing.Size(33, 13);
+            this.labelEnd.TabIndex = 6;
+            this.labelEnd.Text = "END";
+            this.labelEnd.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1211, 999);
+            this.ClientSize = new System.Drawing.Size(1219, 999);
+            this.Controls.Add(this.labelEnd);
+            this.Controls.Add(this.labelStart);
             this.Controls.Add(this.mazeDisplay);
             this.Controls.Add(this.controlContainer);
             this.DoubleBuffered = true;
             this.MaximumSize = new System.Drawing.Size(1920, 1080);
-            this.MinimumSize = new System.Drawing.Size(1227, 1038);
+            this.MinimumSize = new System.Drawing.Size(1235, 1038);
             this.Name = "Form1";
             this.Text = "Form1";
             this.controlContainer.ResumeLayout(false);
@@ -380,6 +406,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.wallPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.mazeDisplay)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -414,6 +441,8 @@
         private System.Windows.Forms.PictureBox backPreview;
         private System.Windows.Forms.PictureBox wallPreview;
         private System.Windows.Forms.PictureBox mazeDisplay;
+        private System.Windows.Forms.Label labelStart;
+        private System.Windows.Forms.Label labelEnd;
     }
 }
 
