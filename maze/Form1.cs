@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using System.IO;
 
 
 namespace maze
@@ -24,7 +23,7 @@ namespace maze
         }
         private int gridSize;
         private int size;
-        
+
 
         private void bmpUpdate(Pen pen, int x1, int y1, int x2, int y2)
         {
@@ -183,7 +182,7 @@ namespace maze
                 count++;
                 progress++;
 
-               // this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
+                // this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
             }
             mazeDisplay.Image = bmp;
 
@@ -225,7 +224,7 @@ namespace maze
             }
             mazeDisplay.Image = null;//do this one instead probs will be fine idk about memory though i am making a lot of imagaes and not disposing of them
             //bmp.Dispose(); //CHECK IF THIS WORKS (it doesnt, dont think it matters)
-            using(Graphics g = Graphics.FromImage(bmp))
+            using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(Color.White);
             }
@@ -240,11 +239,11 @@ namespace maze
             drawMaze(wallColor);
 
             labelStart.Visible = true;
-            labelEnd.Location = new Point(55 + gridSize*size, 26 + gridSize*size);
+            labelEnd.Location = new Point(55 + gridSize * size, 26 + gridSize * size);
             labelEnd.Visible = true;
 
             watch.Stop();
-            long elapsedTime = watch.ElapsedMilliseconds/1000;
+            long elapsedTime = watch.ElapsedMilliseconds / 1000;
 
             progressBar1.Visible = false;
             time.Visible = true;
@@ -258,7 +257,7 @@ namespace maze
         private void buttonGenerate_Click(object sender, EventArgs e)
         {
             int i = Convert.ToInt32(gridSizeInput.Text);
-            if(i < 2)
+            if (i < 2)
             {
                 gridSizeInput.Text = "2";
             }
@@ -270,17 +269,20 @@ namespace maze
         {
             var watch = new Stopwatch();
             btnSolve.Visible = false;
+            progressBar1.Value = 0;
+            progressBar1.Maximum = 100;
+            progressBar1.Visible = true;
             watch.Reset();
             watch.Start();
-            
+
 
             solve(gridSize, size);
 
             watch.Stop();
+            progressBar1.Visible=false;
             solveTime.Text = "Solved in " + (watch.ElapsedMilliseconds).ToString() + "ms.";
             solveTime.Visible = true;
-            //MessageBox.Show("Solver complete");
-
+            
         }
 
 
@@ -292,10 +294,10 @@ namespace maze
 
         private int getSolverProgress(int x, int y)
         {
-            double dMax = Math.Sqrt(2*Math.Pow(gridSize * size,2));
-            double dCurrent = Math.Sqrt(Math.Pow(gridSize * size-x,2) + Math.Pow(gridSize*size-y,2));
+            double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2));
+            double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2));
 
-            int progress = Convert.ToInt32(dCurrent/dMax*100);
+            int progress = Convert.ToInt32(dCurrent / dMax * 100);
             return progress;
         }
 
@@ -322,7 +324,7 @@ namespace maze
             Color color2 = mazeDisplay.BackColor; //color of background
             Color color3 = wallPreview.BackColor;
 
-            Color solverColor = Color.FromArgb(((255 - color2.R)+(255-color3.R))/2, ((255 - color2.G)+(255-color3.G))/2, ((255 - color2.B)+(255-color3.B))/2); //solver line color is opposite to background for most clarity
+            Color solverColor = Color.FromArgb(((255 - color2.R) + (255 - color3.R)) / 2, ((255 - color2.G) + (255 - color3.G)) / 2, ((255 - color2.B) + (255 - color3.B)) / 2); //solver line color is opposite to background for most clarity
 
 
 
@@ -365,6 +367,9 @@ namespace maze
             bmpUpdate(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
             p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
 
+
+            progressBar1.Value = getSolverProgress(p.X,p.Y);
+            
             while (current != new Point(gridSize - 1, gridSize - 1)) //while the current cell is not the end cell
             {
                 index = 0;
@@ -433,8 +438,9 @@ namespace maze
                     }
                 }
 
-                getSolverProgress(p.X, p.Y);
-               
+                progressBar1.Value = getSolverProgress(p.X, p.Y);
+                progressBar1.Update();
+
             }
             mazeDisplay.Image = bmp;
 
@@ -481,132 +487,91 @@ namespace maze
 
 
 
-        private int colorChanged(int value)
+        private string colorChanged(string input)
         {
-            int n;
-            if(value < 0)
+            try
             {
-                n = 0;
+                int n = Convert.ToInt32(input);
+                if (n < 0)
+                {
+                    input = "0";
+                }
+                else if (n > 255)
+                {
+                    input = "255";
+                }
+            }
+            catch
+            {
+                if (input != "")
+                {
+                    input = "0";
+                }
+            }
 
-            }
-            else if(value > 255)
-            {
-                n = 255;
-            }
-            else
-            {
-                n = value;
-            }
-            return n;
 
-            
+
+            return input;
+
         }
 
         private void wallR_TextChanged(object sender, EventArgs e)
         {
-            try
+            wallR.Text = colorChanged(wallR.Text);
+            string input = wallR.Text;
+            if (input != "")
             {
-                int n = colorChanged(Convert.ToInt32(wallR.Text));
-                wallR.Text = n.ToString();
                 wallPreview.BackColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
-
-            }
-            catch
-            {
-                if(wallR.Text != "")
-                {
-                    wallR.Text = "0";
-                }
             }
         }
 
         private void wallG_TextChanged(object sender, EventArgs e)
         {
-            try
+            wallG.Text = colorChanged(wallG.Text);
+            string input = wallG.Text;
+            if (input != "")
             {
-                int n = colorChanged(Convert.ToInt32(wallG.Text));
-                wallG.Text = n.ToString();
                 wallPreview.BackColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
-
-            }
-            catch
-            {
-                if (wallG.Text != "")
-                {
-                    wallG.Text = "0";
-                }
             }
         }
 
         private void wallB_TextChanged(object sender, EventArgs e)
         {
-            try
+            wallB.Text = colorChanged(wallB.Text);
+            string input = wallB.Text;
+            if (input != "")
             {
-                int n = colorChanged(Convert.ToInt32(wallB.Text));
-                wallB.Text = n.ToString();
                 wallPreview.BackColor = Color.FromArgb(Convert.ToInt32(wallR.Text), Convert.ToInt32(wallG.Text), Convert.ToInt32(wallB.Text));
-
-            }
-            catch
-            {
-                if (wallB.Text != "")
-                {
-                    wallB.Text = "0";
-                }
             }
         }
 
         private void backR_TextChanged(object sender, EventArgs e)
         {
-            try
+            backR.Text = colorChanged(backR.Text);
+            string input = backR.Text;
+            if (input != "")
             {
-                int n = colorChanged(Convert.ToInt32(backR.Text));
-                backR.Text = n.ToString();
                 backPreview.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
-
-            }
-            catch
-            {
-                if (backR.Text != "")
-                {
-                    backR.Text = "0";
-                }
             }
         }
 
         private void backG_TextChanged(object sender, EventArgs e)
         {
-            try
+            backG.Text = colorChanged(backG.Text);
+            string input = backG.Text;
+            if (input != "")
             {
-                int n = colorChanged(Convert.ToInt32(backG.Text));
-                backG.Text = n.ToString();
                 backPreview.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
-
-            }
-            catch
-            {
-                if (backG.Text != "")
-                {
-                    backG.Text = "0";
-                }
             }
         }
 
         private void backB_TextChanged(object sender, EventArgs e)
         {
-            try
+            backB.Text = colorChanged(backB.Text);
+            string input = backB.Text;
+            if (input != "")
             {
-                int n = colorChanged(Convert.ToInt32(backB.Text));
-                backB.Text = n.ToString();
                 backPreview.BackColor = Color.FromArgb(Convert.ToInt32(backR.Text), Convert.ToInt32(backG.Text), Convert.ToInt32(backB.Text));
-
-            }
-            catch
-            {
-                if (backB.Text != "")
-                {
-                    backB.Text = "0";
-                }
             }
         }
 
@@ -616,18 +581,18 @@ namespace maze
             try
             {
                 input = Convert.ToInt32(gridSizeInput.Text);
-                if(input < 1)
+                if (input < 1)
                 {
                     gridSizeInput.Text = "1";
                 }
-                else if(input > 300)
+                else if (input > 300)
                 {
                     gridSizeInput.Text = "300";
                 }
             }
             catch
             {
-                if(gridSizeInput.Text != "")
+                if (gridSizeInput.Text != "")
                 {
                     gridSizeInput.Text = "50";
                 }
@@ -636,26 +601,27 @@ namespace maze
 
         private void btnExport_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg";
+            SaveFileDialog saveFileDialog = new SaveFileDialog(); //creating save file dialogue
+            saveFileDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg"; //filters and stuff
             saveFileDialog.Title = "Save As";
             saveFileDialog.DefaultExt = "png";
 
+
             int gridSize = Convert.ToInt32(gridSizeInput.Text);
-            int size = 900 / gridSize;
+            int size = 900 / gridSize; //true length of maze
 
-
-            Rectangle crop = new Rectangle(0,0, gridSize*size,gridSize*size);
+            Rectangle crop = new Rectangle(0, 0, gridSize * size, gridSize * size); //cropped maze (displayed size varies)
 
             Bitmap image = new Bitmap(crop.Width, crop.Height);
 
-            using(Graphics g = Graphics.FromImage(image))
+
+            using (Graphics g = Graphics.FromImage(image))
             {
-                g.DrawImage(bmp, new Rectangle(0,0,crop.Width,crop.Height),crop,GraphicsUnit.Pixel);
+                g.DrawImage(bmp, new Rectangle(0, 0, crop.Width, crop.Height), crop, GraphicsUnit.Pixel); //applying crop
             }
 
 
-            if(saveFileDialog.ShowDialog() == DialogResult.OK)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK) //when user clicks save
             {
                 string filePath = saveFileDialog.FileName;
                 ImageFormat format = saveFileDialog.FilterIndex == 1 ? ImageFormat.Png : ImageFormat.Jpeg;
