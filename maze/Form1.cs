@@ -191,11 +191,7 @@ namespace maze
 
         private void generate()
         {
-            labelStart.Visible = false;
-            labelEnd.Visible = false;
-            time.Visible = false;
-            solveTime.Visible = false;
-            progressBar1.Visible = true;
+
 
             var watch = new Stopwatch();
             watch.Reset();
@@ -209,7 +205,7 @@ namespace maze
             Color wallColor = wallPreview.BackColor;
             Color backColor = backPreview.BackColor;
 
-            if (wallColor.A == backColor.A && wallColor.G == backColor.G && wallColor.B == backColor.B)
+            if (wallColor.A == backColor.A && wallColor.G == backColor.G && wallColor.B == backColor.B) //getting colors and validating them
             {
                 wallColor = Color.Black;
                 backColor = Color.White;
@@ -222,8 +218,8 @@ namespace maze
                 backG.Text = backColor.G.ToString();
                 backB.Text = backColor.B.ToString();
             }
+
             mazeDisplay.Image = null;//do this one instead probs will be fine idk about memory though i am making a lot of imagaes and not disposing of them
-            //bmp.Dispose(); //CHECK IF THIS WORKS (it doesnt, dont think it matters)
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(Color.White);
@@ -249,6 +245,7 @@ namespace maze
             time.Visible = true;
             btnSolve.Visible = true;
             btnExport.Visible = true;
+            buttonGenerate.Visible = true;
 
             time.Text = "Generated in " + elapsedTime.ToString() + "s";
         }
@@ -269,6 +266,8 @@ namespace maze
         {
             var watch = new Stopwatch();
             btnSolve.Visible = false;
+            buttonGenerate.Visible = false;
+            btnExport.Visible=false;
             progressBar1.Value = 0;
             progressBar1.Maximum = 100;
             progressBar1.Visible = true;
@@ -282,6 +281,9 @@ namespace maze
             progressBar1.Visible=false;
             solveTime.Text = "Solved in " + (watch.ElapsedMilliseconds).ToString() + "ms.";
             solveTime.Visible = true;
+
+            btnExport.Visible = true;
+            buttonGenerate.Visible=true;
             
         }
 
@@ -292,13 +294,19 @@ namespace maze
             return pixelColor;
         }
 
-        private int getSolverProgress(int x, int y)
+        private int getSolverProgress(int x, int y, int ticks)
         {
             double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2));
             double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2));
-
-            int progress = Convert.ToInt32(dCurrent / dMax * 100);
-            return progress;
+            int progress = Convert.ToInt32((dCurrent / dMax) * 100);
+            if (ticks > gridSize*gridSize/100)
+            {
+                return progress;
+            }
+            else
+            {
+                return progress = progressBar1.Value;
+            }
         }
 
         private void solve(int gridSize, int size)//maze solver using DFS algorithm
@@ -367,8 +375,8 @@ namespace maze
             bmpUpdate(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
             p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
 
-
-            progressBar1.Value = getSolverProgress(p.X,p.Y);
+            int ticks = 1;
+            progressBar1.Value = getSolverProgress(p.X,p.Y,ticks);
             
             while (current != new Point(gridSize - 1, gridSize - 1)) //while the current cell is not the end cell
             {
@@ -437,8 +445,12 @@ namespace maze
                         moves.RemoveAt(moves.Count - 1);
                     }
                 }
-
-                progressBar1.Value = getSolverProgress(p.X, p.Y);
+                ticks++;
+                progressBar1.Value = getSolverProgress(p.X, p.Y,ticks);
+                if(ticks > gridSize * gridSize / 100)
+                {
+                    ticks = 0;
+                }
                 progressBar1.Update();
 
             }
@@ -585,9 +597,9 @@ namespace maze
                 {
                     gridSizeInput.Text = "1";
                 }
-                else if (input > 300)
+                else if (input > 200)
                 {
-                    gridSizeInput.Text = "300";
+                    gridSizeInput.Text = "200";
                 }
             }
             catch
