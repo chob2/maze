@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.buttonGenerate = new System.Windows.Forms.Button();
             this.controlContainer = new System.Windows.Forms.GroupBox();
             this.solveTime = new System.Windows.Forms.Label();
@@ -288,9 +289,9 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(4, 146);
+            this.progressBar1.Location = new System.Drawing.Point(4, 143);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(172, 23);
+            this.progressBar1.Size = new System.Drawing.Size(172, 26);
             this.progressBar1.TabIndex = 4;
             this.progressBar1.Visible = false;
             // 
@@ -394,10 +395,11 @@
             this.Controls.Add(this.mazeDisplay);
             this.Controls.Add(this.controlContainer);
             this.DoubleBuffered = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(1920, 1080);
             this.MinimumSize = new System.Drawing.Size(1235, 1038);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Labyrinth";
             this.controlContainer.ResumeLayout(false);
             this.controlContainer.PerformLayout();
             this.groupBox2.ResumeLayout(false);

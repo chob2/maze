@@ -192,7 +192,8 @@ namespace maze
         private void generate()
         {
 
-
+            progressBar1.Visible = true;
+            solveTime.Visible = false;
             var watch = new Stopwatch();
             watch.Reset();
             watch.Start();
@@ -239,7 +240,20 @@ namespace maze
             labelEnd.Visible = true;
 
             watch.Stop();
-            long elapsedTime = watch.ElapsedMilliseconds / 1000;
+            int divisor;
+            string[] units = { "ms", "s" };
+            int i;
+            if (watch.ElapsedMilliseconds < 1000) 
+            {
+                divisor = 1;
+                i = 0;
+            }
+            else
+            {
+                divisor = 1000;
+                i = 1;
+            }
+
 
             progressBar1.Visible = false;
             time.Visible = true;
@@ -247,7 +261,7 @@ namespace maze
             btnExport.Visible = true;
             buttonGenerate.Visible = true;
 
-            time.Text = "Generated in " + elapsedTime.ToString() + "s";
+            time.Text = "Generated in " + (watch.ElapsedMilliseconds / divisor).ToString() + units[i] + ".";
         }
 
 
@@ -267,7 +281,7 @@ namespace maze
             var watch = new Stopwatch();
             btnSolve.Visible = false;
             buttonGenerate.Visible = false;
-            btnExport.Visible=false;
+            btnExport.Visible = false;
             progressBar1.Value = 0;
             progressBar1.Maximum = 100;
             progressBar1.Visible = true;
@@ -278,18 +292,33 @@ namespace maze
             solve(gridSize, size);
 
             watch.Stop();
-            progressBar1.Visible=false;
-            solveTime.Text = "Solved in " + (watch.ElapsedMilliseconds).ToString() + "ms.";
+            progressBar1.Visible = false;
+
+            int divisor;
+            string[] units = { "ms", "s" };
+            int i;
+            if (watch.ElapsedMilliseconds < 1000)
+            {
+                divisor = 1;
+                i = 0;
+            }
+            else
+            {
+                divisor = 1000;
+                i = 1;
+            }
+
+            solveTime.Text = "Solved in " + (watch.ElapsedMilliseconds / divisor).ToString() + units[i] + ".";
             solveTime.Visible = true;
 
             btnExport.Visible = true;
-            buttonGenerate.Visible=true;
-            
+            buttonGenerate.Visible = true;
+
         }
 
 
         private Color getColor(Point location) //references bitmap for pixel color at desired point
-        { //idk why but this made solving nearly instant
+        { //idk why but this made solving nearly instant -- made it instant because taking info from live display is super slow
             Color pixelColor = bmp.GetPixel(location.X, location.Y);
             return pixelColor;
         }
@@ -299,7 +328,7 @@ namespace maze
             double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2));
             double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2));
             int progress = Convert.ToInt32((dCurrent / dMax) * 100);
-            if (ticks > gridSize*gridSize/100)
+            if (ticks > gridSize * gridSize / 100)
             {
                 return progress;
             }
@@ -376,8 +405,8 @@ namespace maze
             p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
 
             int ticks = 1;
-            progressBar1.Value = getSolverProgress(p.X,p.Y,ticks);
-            
+            progressBar1.Value = getSolverProgress(p.X, p.Y, ticks);
+
             while (current != new Point(gridSize - 1, gridSize - 1)) //while the current cell is not the end cell
             {
                 index = 0;
@@ -446,8 +475,8 @@ namespace maze
                     }
                 }
                 ticks++;
-                progressBar1.Value = getSolverProgress(p.X, p.Y,ticks);
-                if(ticks > gridSize * gridSize / 100)
+                progressBar1.Value = getSolverProgress(p.X, p.Y, ticks);
+                if (ticks > gridSize * gridSize / 100)
                 {
                     ticks = 0;
                 }
