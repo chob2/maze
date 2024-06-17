@@ -327,7 +327,7 @@ namespace maze
         {
             double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2));
             double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2));
-            int progress = Convert.ToInt32((dCurrent / dMax) * 100);
+            int progress = Convert.ToInt32(100 - (dCurrent / dMax) * 100);
             if (ticks > gridSize * gridSize / 100)
             {
                 return progress;
