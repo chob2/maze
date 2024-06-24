@@ -15,12 +15,9 @@ namespace maze
             InitializeComponent();
 
         }
+
         private Bitmap bmp = new Bitmap(901, 901);
-        private int getGridSize(string input)
-        {
-            int x = Convert.ToInt32(input);
-            return x;
-        }
+
         private int gridSize;
         private int size;
 
@@ -30,6 +27,89 @@ namespace maze
             Graphics g = Graphics.FromImage(bmp);
             g.DrawLine(pen, x1, y1, x2, y2);
             g.Dispose();
+        }
+
+
+        private void buttonGenerate_Click(object sender, EventArgs e)
+        {
+            int i = Convert.ToInt32(gridSizeInput.Text);
+            if (i < 2)
+            {
+                gridSizeInput.Text = "2"; //allows user to type in "1" in order to write things like "100". prevents generating size of 1.
+            }
+            generate();
+        }
+
+
+        private void generate()
+        {
+
+            progressBar1.Visible = true;
+            solveTime.Visible = false;
+            var watch = new Stopwatch();
+            watch.Reset();
+            watch.Start();
+
+
+            Color wallColor = wallPreview.BackColor;
+            Color backColor = backPreview.BackColor;
+
+            if (wallColor.A == backColor.A && wallColor.G == backColor.G && wallColor.B == backColor.B) //getting colors and validating them
+            {
+                wallColor = Color.Black;
+                backColor = Color.White;
+
+                wallR.Text = wallColor.R.ToString();
+                wallG.Text = wallColor.G.ToString();
+                wallB.Text = wallColor.B.ToString();
+
+                backR.Text = backColor.R.ToString();
+                backG.Text = backColor.G.ToString();
+                backB.Text = backColor.B.ToString();
+            }
+
+            mazeDisplay.Image = null;
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.White);
+            }
+
+            mazeDisplay.BackColor = backColor;
+
+            gridSize = getGridSize(gridSizeInput.Text);
+            size = (900 / gridSize);
+
+
+            makeCells(wallColor, backColor);
+            drawMaze(wallColor);
+
+            labelStart.Visible = true;
+            labelEnd.Location = new Point(55 + gridSize * size, 26 + gridSize * size);
+            labelEnd.Visible = true;
+
+            watch.Stop();
+            int divisor;
+            string[] units = { "ms", "s" };
+            int i;
+            if (watch.ElapsedMilliseconds < 1000) //getting proper units for time
+            {
+                divisor = 1;
+                i = 0;
+            }
+            else
+            {
+                divisor = 1000;
+                i = 1;
+            }
+
+
+            progressBar1.Visible = false;
+            time.Visible = true;
+            btnSolve.Visible = true;
+            btnExport.Visible = true;
+            buttonGenerate.Visible = true;
+
+            time.Text = "Generated in " + (watch.ElapsedMilliseconds / divisor).ToString() + units[i] + ".";
         }
 
 
@@ -60,7 +140,6 @@ namespace maze
             }
             myPen.Dispose();
         }
-
 
 
         private void drawMaze(Color wallColor) //uses a randomised prim's algorithm to generate the maze
@@ -182,93 +261,6 @@ namespace maze
         }
 
 
-        private void generate()
-        {
-
-            progressBar1.Visible = true;
-            solveTime.Visible = false;
-            var watch = new Stopwatch();
-            watch.Reset();
-            watch.Start();
-
-
-
-
-
-
-            Color wallColor = wallPreview.BackColor;
-            Color backColor = backPreview.BackColor;
-
-            if (wallColor.A == backColor.A && wallColor.G == backColor.G && wallColor.B == backColor.B) //getting colors and validating them
-            {
-                wallColor = Color.Black;
-                backColor = Color.White;
-
-                wallR.Text = wallColor.R.ToString();
-                wallG.Text = wallColor.G.ToString();
-                wallB.Text = wallColor.B.ToString();
-
-                backR.Text = backColor.R.ToString();
-                backG.Text = backColor.G.ToString();
-                backB.Text = backColor.B.ToString();
-            }
-
-            mazeDisplay.Image = null;
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                g.Clear(Color.White);
-            }
-
-            mazeDisplay.BackColor = backColor;
-
-            gridSize = getGridSize(gridSizeInput.Text);
-            size = (900 / gridSize);
-
-
-            makeCells(wallColor, backColor);
-            drawMaze(wallColor);
-
-            labelStart.Visible = true;
-            labelEnd.Location = new Point(55 + gridSize * size, 26 + gridSize * size);
-            labelEnd.Visible = true;
-
-            watch.Stop();
-            int divisor;
-            string[] units = { "ms", "s" };
-            int i;
-            if (watch.ElapsedMilliseconds < 1000) //getting proper units for time
-            {
-                divisor = 1;
-                i = 0;
-            }
-            else
-            {
-                divisor = 1000;
-                i = 1;
-            }
-
-
-            progressBar1.Visible = false;
-            time.Visible = true;
-            btnSolve.Visible = true;
-            btnExport.Visible = true;
-            buttonGenerate.Visible = true;
-
-            time.Text = "Generated in " + (watch.ElapsedMilliseconds / divisor).ToString() + units[i] + ".";
-        }
-
-
-        private void buttonGenerate_Click(object sender, EventArgs e)
-        {
-            int i = Convert.ToInt32(gridSizeInput.Text);
-            if (i < 2)
-            {
-                gridSizeInput.Text = "2"; //allows user to type in "1" in order to write things like "100". prevents generating size of 1.
-            }
-            generate();
-        }
-
-
         private void btnSolve_Click(object sender, EventArgs e)
         {
             var watch = new Stopwatch();
@@ -309,22 +301,6 @@ namespace maze
 
         }
 
-
-        private Color getColor(Point location) //references bitmap for pixel color at desired point
-        { //idk why but this made solving nearly instant -- made it instant because taking info from live display is super slow
-            Color pixelColor = bmp.GetPixel(location.X, location.Y);
-            return pixelColor;
-        }
-
-        private int getSolverProgress(int x, int y)
-        {
-            double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2)); //diagonal distance from start to end (pythagoras)
-            double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2)); //diagonal distance from current solver point to end
-            int progress = Convert.ToInt32(100 - (dCurrent / dMax) * 100); //progress = current distance / max distance
-
-            return progress;
-
-        }
 
         private void solve(int gridSize, int size)//maze solver using DFS algorithm
         {
@@ -474,45 +450,23 @@ namespace maze
 
         }
 
-        /* private void collectSolverDiagnostics()
-         {
-             var watch = new Stopwatch();
-             string[] times = new string[25];
-             int index = 0;
-             for(int i = 1; i < 6; i++)
-             {
-                 mazeContainer.Size = new Size(900, 900);
-                 int gridSize = 10 * i;
-                 int size = (mazeContainer.Width / gridSize);
-                 mazeContainer.Size = new Size(901, 901);
 
-                 for (int j=0; j < 5; j++)
-                 {
-                     Graphics g = mazeContainer.CreateGraphics();
-                     g.Clear(mazeContainer.BackColor);
-                     g.Dispose();
+        private int getSolverProgress(int x, int y)
+        {
+            double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2)); //diagonal distance from start to end (pythagoras)
+            double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2)); //diagonal distance from current solver point to end
+            int progress = Convert.ToInt32(100 - (dCurrent / dMax) * 100); //progress = current distance / max distance
 
-                     watch.Reset();
-                     watch.Start();
+            return progress;
 
-                     //makeCells(gridSize, size);
-                     drawMaze(gridSize, size);
-                     solve(gridSize, size);
-
-                     watch.Stop();
-
-                     times[index] = watch.ElapsedMilliseconds.ToString();
-                     index++;
-                 }
-             }
-
-             string filePath = "R:\\out\\out.txt";
-             File.WriteAllLines(filePath, times);
-
-         }*/
+        }
 
 
-
+        private Color getColor(Point location) //references bitmap for pixel color at desired point
+        { //idk why but this made solving nearly instant -- made it instant because taking info from live display is super slow
+            Color pixelColor = bmp.GetPixel(location.X, location.Y);
+            return pixelColor;
+        }
 
 
         private string colorChanged(string input) //method for validating rgb choices
@@ -542,6 +496,7 @@ namespace maze
             return input;
 
         }
+
 
         private void wallR_TextChanged(object sender, EventArgs e)
         {
@@ -603,6 +558,7 @@ namespace maze
             }
         }
 
+
         private void gridSizeInput_TextChanged(object sender, EventArgs e) //method for validating grid size
         {
             int input;
@@ -626,6 +582,13 @@ namespace maze
                 }
             }
         }
+
+        private int getGridSize(string input)
+        {
+            int x = Convert.ToInt32(input);
+            return x;
+        }
+
 
         private void btnExport_Click(object sender, EventArgs e) //for saving output as an image
         {
