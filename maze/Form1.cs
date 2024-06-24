@@ -25,7 +25,7 @@ namespace maze
         private int size;
 
 
-        private void bmpUpdate(Pen pen, int x1, int y1, int x2, int y2)
+        private void bmpUpdate(Pen pen, int x1, int y1, int x2, int y2) //drawing function for drawing on maze bitmap
         {
             Graphics g = Graphics.FromImage(bmp);
             g.DrawLine(pen, x1, y1, x2, y2);
@@ -35,9 +35,9 @@ namespace maze
 
         private void makeCells(Color wallColor, Color backColor)
         {
-            Pen myPen = new Pen(wallColor, 1);
-            SolidBrush myBrush = new SolidBrush(backColor);
-            Rectangle rect = new Rectangle(0, 0, size * gridSize, size * gridSize);
+            Pen myPen = new Pen(wallColor, 1); //pen for drawing walls
+            SolidBrush myBrush = new SolidBrush(backColor); //brush for filling container with background color
+            Rectangle rect = new Rectangle(0, 0, size * gridSize, size * gridSize);//actual size of maze to be filled (changes depending on gridsize)
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.FillRectangle(myBrush, rect);
@@ -67,7 +67,7 @@ namespace maze
         {
             Random rand = new Random();
 
-            int i = rand.Next(0, gridSize);//randomly choosing a cell 
+            int i = rand.Next(0, gridSize);//randomly choosing a cell (nucleus)
             int j = rand.Next(0, gridSize); //i = rows and j = columns
                                             //i = Y value of point, j = x value of point
 
@@ -128,8 +128,8 @@ namespace maze
                 Pen myPen = new Pen(color, 1);
 
                 int targ = rand.Next(0, index);//choosing valid target cell
-                //deleting connecting walls between the chosen cells
 
+                //deleting connecting walls between the chosen cells:
                 //if neighbours[targ].X > potentialNext[r].X -> target cell is to the right
                 if (neighbours[targ].X > potentialNext[r].X)
                 {
@@ -139,22 +139,16 @@ namespace maze
                 else if (neighbours[targ].X < potentialNext[r].X)
                 {
                     bmpUpdate(myPen, potentialNext[r].X * size, potentialNext[r].Y * size + 1, potentialNext[r].X * size, potentialNext[r].Y * size + size - 1);
-
                 }
                 //if neighbours[targ].Y < potentialNext[r].Y -> target cell is above
                 else if (neighbours[targ].Y < potentialNext[r].Y)
                 {
-                    //wallN[potentialNext[r].Y, potentialNext[r].X].Dispose();
-                    //g.DrawLine(myPen, size * j, size * i, size * j + size, size * i);
-                    //g.DrawLine(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size);
                     bmpUpdate(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size);
-
                 }
                 //if neighbours[targ].Y > potentialNext[r].Y -> target cell is below
                 else if (neighbours[targ].Y > potentialNext[r].Y)
                 {
                     bmpUpdate(myPen, potentialNext[r].X * size + 1, potentialNext[r].Y * size + size, potentialNext[r].X * size + size - 1, potentialNext[r].Y * size + size);
-
                 }
 
 
@@ -182,9 +176,8 @@ namespace maze
                 count++;
                 progress++;
 
-                // this.Update(); //updates progress each iteration, makes maze pathing visual. very statisfying
             }
-            mazeDisplay.Image = bmp;
+            mazeDisplay.Image = bmp; //displaying finished maze
 
         }
 
@@ -220,7 +213,7 @@ namespace maze
                 backB.Text = backColor.B.ToString();
             }
 
-            mazeDisplay.Image = null;//do this one instead probs will be fine idk about memory though i am making a lot of imagaes and not disposing of them
+            mazeDisplay.Image = null;
             using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(Color.White);
@@ -243,7 +236,7 @@ namespace maze
             int divisor;
             string[] units = { "ms", "s" };
             int i;
-            if (watch.ElapsedMilliseconds < 1000) 
+            if (watch.ElapsedMilliseconds < 1000) //getting proper units for time
             {
                 divisor = 1;
                 i = 0;
@@ -270,7 +263,7 @@ namespace maze
             int i = Convert.ToInt32(gridSizeInput.Text);
             if (i < 2)
             {
-                gridSizeInput.Text = "2";
+                gridSizeInput.Text = "2"; //allows user to type in "1" in order to write things like "100". prevents generating size of 1.
             }
             generate();
         }
@@ -323,31 +316,26 @@ namespace maze
             return pixelColor;
         }
 
-        private int getSolverProgress(int x, int y, int ticks)
+        private int getSolverProgress(int x, int y)
         {
-            double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2));
-            double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2));
-            int progress = Convert.ToInt32(100 - (dCurrent / dMax) * 100);
-            if (ticks > gridSize * gridSize / 100)
-            {
-                return progress;
-            }
-            else
-            {
-                return progress = progressBar1.Value;
-            }
+            double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2)); //diagonal distance from start to end (pythagoras)
+            double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2)); //diagonal distance from current solver point to end
+            int progress = Convert.ToInt32(100 - (dCurrent / dMax) * 100); //progress = current distance / max distance
+
+            return progress;
+
         }
 
         private void solve(int gridSize, int size)//maze solver using DFS algorithm
         {
             Random rand = new Random();
 
-            int[] cellOffsetY = { 0, size / 2, size, size / 2 };
+            int[] cellOffsetY = { 0, size / 2, size, size / 2 }; //offsets within a cell
             int[] cellOffsetX = { size / 2, size, size / 2, 0 };
 
 
             int[] gridOffsetX = { 0, 1, 0, -1 }; //n, e, s, w
-            int[] gridOffsetY = { -1, 0, 1, 0 };
+            int[] gridOffsetY = { -1, 0, 1, 0 }; //offsets on the grid
 
             List<Point> moves = new List<Point>(); //list of moves, e.g. up one or left one
             List<Point> visited = new List<Point>(); //visited cells
@@ -359,15 +347,15 @@ namespace maze
 
             Point current = new Point(0, 0); //current point, starting at 0,0
             Color color2 = mazeDisplay.BackColor; //color of background
-            Color color3 = wallPreview.BackColor;
+            Color color3 = wallPreview.BackColor; //color of walls
 
-            Color solverColor = Color.FromArgb(((255 - color2.R) + (255 - color3.R)) / 2, ((255 - color2.G) + (255 - color3.G)) / 2, ((255 - color2.B) + (255 - color3.B)) / 2); //solver line color is opposite to background for most clarity
+            Color solverColor = Color.FromArgb(((255 - color2.R) + (255 - color3.R)) / 2, ((255 - color2.G) + (255 - color3.G)) / 2, ((255 - color2.B) + (255 - color3.B)) / 2); //solver line color is opposite to background and walls for most contrast
 
 
 
             Pen myPen = new Pen(solverColor, 1); //solver line
             Pen myEraser = new Pen(color2, 1); //to remove solver line during backtracking
-            Point p = new Point(size / 2, size / 2); //solver line starting point
+            Point p = new Point(size / 2, size / 2); //solver line starting point within the cell
 
 
             for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
@@ -378,10 +366,9 @@ namespace maze
                 int dirY = gridOffsetY[direction]; //direction the loop is checking, e.g. upwards (0, -1)
                 int dirX = gridOffsetX[direction];
 
-                Point point = new Point(newX, newY); //point where wall could be
-                Point nextMove = new Point(dirX, dirY);//next point to be moved to on this index
+                Point point = new Point(newX, newY); //point in cell where wall could be
+                Point nextMove = new Point(dirX, dirY);//next cell to be moved to on this index
 
-                //Color color1 = getPixelColor(mazeDisplay, point);
                 Color color1 = getColor(point);
                 //checks n,e,s,w
                 if (color1.A == color2.A && color1.R == color2.R && color1.G == color2.G && color1.B == color2.B) //if the inspected pixel is the same as background, there is no wall
@@ -396,21 +383,21 @@ namespace maze
             }
 
 
-            int targ = rand.Next(0, index); //choose random number to select next cell
+            int targ = rand.Next(0, index); //choose random index to select next cell from possible selections
             moves.Add(next[targ]); //add move to the list of moves made
             visited.Add(current); //add current cell to list of visited cells
             current = new Point(moves[moves.Count - 1].X, moves[moves.Count - 1].Y); //update current cell to the next cell
 
-            bmpUpdate(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
-            p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size);
+            bmpUpdate(myPen, p.X, p.Y, p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size); //draw in solver line
+            p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size); //update position of solver
 
             int ticks = 1;
-            progressBar1.Value = getSolverProgress(p.X, p.Y, ticks);
+            progressBar1.Value = getSolverProgress(p.X, p.Y);
 
-            while (current != new Point(gridSize - 1, gridSize - 1)) //while the current cell is not the end cell
+            while (current != new Point(gridSize - 1, gridSize - 1)) //while the solver is not on the end cell
             {
                 index = 0;
-                bool path = false; //boolean to store if a node has a continuing path from it, if false algorithm starts backtracking
+                bool path = false; //boolean to store if a node has a continuing path from it, if false implies dead end, algorithm starts backtracking
 
 
                 for (int direction = 0; direction < 4; direction++) //checks cells around starting cell for paths
@@ -425,7 +412,6 @@ namespace maze
                     Point nextMove = new Point(dirX, dirY);
                     Point checkPoint = new Point(current.X + dirX, current.Y + dirY);
 
-                    //Color color1 = getPixelColor(mazeDisplay, point);
                     Color color1 = getColor(point);
                     //checks in the order of w, n, e, s
 
@@ -445,7 +431,7 @@ namespace maze
                 {
                     intersections.Add(current);
                 }
-                else if (index <= 1 && intersections.Contains(current)) //removes intersection if it is recorded but there are no longer multiple paths
+                else if (index <= 1 && intersections.Contains(current)) //removes intersection if it was recorded but there are no longer multiple paths
                 {
                     intersections.Remove(current);
                 }
@@ -475,12 +461,13 @@ namespace maze
                     }
                 }
                 ticks++;
-                progressBar1.Value = getSolverProgress(p.X, p.Y, ticks);
-                if (ticks > gridSize * gridSize / 100)
+                if (ticks > gridSize * gridSize / 100) //updates progress every so often
                 {
+                    progressBar1.Value = getSolverProgress(p.X, p.Y);
+                    progressBar1.Update();
+
                     ticks = 0;
                 }
-                progressBar1.Update();
 
             }
             mazeDisplay.Image = bmp;
@@ -528,7 +515,7 @@ namespace maze
 
 
 
-        private string colorChanged(string input)
+        private string colorChanged(string input) //method for validating rgb choices
         {
             try
             {
@@ -616,7 +603,7 @@ namespace maze
             }
         }
 
-        private void gridSizeInput_TextChanged(object sender, EventArgs e)
+        private void gridSizeInput_TextChanged(object sender, EventArgs e) //method for validating grid size
         {
             int input;
             try
@@ -640,7 +627,7 @@ namespace maze
             }
         }
 
-        private void btnExport_Click(object sender, EventArgs e)
+        private void btnExport_Click(object sender, EventArgs e) //for saving output as an image
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog(); //creating save file dialogue
             saveFileDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg"; //filters and stuff
