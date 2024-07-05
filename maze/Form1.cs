@@ -368,7 +368,7 @@ namespace maze
             p = new Point(p.X + moves[moves.Count - 1].X * size, p.Y + moves[moves.Count - 1].Y * size); //update position of solver
 
             int ticks = 1;
-            progressBar1.Value = getSolverProgress(p.X, p.Y);
+            progressBar1.Value = getSolverProgress(p.X, p.Y, progressBar1.Value);
 
             while (current != new Point(gridSize - 1, gridSize - 1)) //while the solver is not on the end cell
             {
@@ -439,7 +439,7 @@ namespace maze
                 ticks++;
                 if (ticks > gridSize * gridSize / 100) //updates progress every so often
                 {
-                    progressBar1.Value = getSolverProgress(p.X, p.Y);
+                    progressBar1.Value = getSolverProgress(p.X, p.Y, progressBar1.Value);
                     progressBar1.Update();
 
                     ticks = 0;
@@ -451,14 +451,20 @@ namespace maze
         }
 
 
-        private int getSolverProgress(int x, int y)
+        private int getSolverProgress(int x, int y, int currentProgress)
         {
             double dMax = Math.Sqrt(2 * Math.Pow(gridSize * size, 2)); //diagonal distance from start to end (pythagoras)
             double dCurrent = Math.Sqrt(Math.Pow(gridSize * size - x, 2) + Math.Pow(gridSize * size - y, 2)); //diagonal distance from current solver point to end
             int progress = Convert.ToInt32(100 - (dCurrent / dMax) * 100); //progress = current distance / max distance
 
-            return progress;
-
+            if (progress > currentProgress)
+            {
+                return progress;
+            }
+            else
+            {
+                return currentProgress;
+            }
         }
 
 
